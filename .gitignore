@@ -1,0 +1,10 @@
+.DS_Store
+.Rbuildignore
+.vscode
+
+.RData
+.tar.gz
+
+/.Rproj.user/
+*.Rproj
+*.pdf
