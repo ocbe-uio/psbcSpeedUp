@@ -8,7 +8,7 @@
 #' @param object an object of class \code{psbcSpeedUp}
 #' @param type type of point estimates of regressions. One of 
 #' \code{c("mean", "median")}. Default is \code{mean}
-#' @param ... other arguments
+#' @param ... not used
 #'
 #' @return Estimated coefficients are from an object of class \code{psbcSpeedUp}. 
 #' If the \code{psbcSpeedUp} specified data standardization, the fitted values 

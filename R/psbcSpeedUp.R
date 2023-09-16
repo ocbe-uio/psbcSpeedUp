@@ -2,7 +2,7 @@
 #' @title Function to Fit the Bayesian Cox Lasso Model
 #' 
 #' @description
-#' This a speed-up version of the function \code{psbcGL()} in the R package \code{psbcGrouup}
+#' This a speed-up and extended version of the function \code{psbcGL()} in the R package \code{psbcGrouup}
 #'
 #' @name psbcSpeedUp
 #' @docType package
@@ -19,7 +19,8 @@
 #' @param q number of mandatory covariates
 #' @param hyperpar The list containing prior parameter values; among
 #' \code{c('beta.ini', 'lambdaSq', 'sigmaSq', 'tauSq', 'h', 'groupInd', 'eta0', 
-#' 'kappa0', 'c0', 'r', 'delta', 'beta.prop.var', 'beta.clin.var')}
+#' 'kappa0', 'c0', 'r', 'delta', 'beta.prop.var', 'beta.clin.var')}. See 
+#' details for more information
 #' @param nIter the number of iterations of the chain
 #' @param burnin number of iterations to discard at the start of the chain. 
 #' Default is 0
@@ -28,17 +29,19 @@
 #' Hastings algorithm is used. Otherwise, the mean and the variance of the
 #' proposal density is updated using the jumping rule described in
 #' Lee et al. (2011)
-#' @param outFilePath description
-#' @param tmpFolder description
-#'
+#' @param outFilePath path to where the output files are to be written
+#' @param tmpFolder the path to a temporary folder where intermediate data 
+#' files are stored (will be erased at the end of the chain). It is specified 
+#' relative to \code{outFilePath}
+#' 
 #' @details
 #' \tabular{ll}{
 #' \code{t} \tab a vector of \code{n} times to the event \cr
 #' \code{di} \tab a vector of \code{n} censoring indicators for the event time (1=event occurred, 0=censored) \cr
 #' \code{x} \tab covariate matrix, \code{n} observations by \code{p} variables\cr
-#' \code{eta0} \tab scale parameter of gamma process prior for the cumulative baseline hazard, \eqn{eta0 > 0}\cr
-#' \code{kappa0} \tab shape parameter of gamma process prior for the cumulative baseline hazard, \eqn{kappa0 > 0}\cr
-#' \code{c0} \tab the confidence parameter of gamma process prior for the cumulative baseline hazard, \eqn{c0 > 0}\cr
+#' \code{eta0} \tab scale parameter of gamma process prior for the cumulative baseline hazard, \eqn{\eta_0 > 0}\cr
+#' \code{kappa0} \tab shape parameter of gamma process prior for the cumulative baseline hazard, \eqn{\kappa_0 > 0}\cr
+#' \code{c0} \tab the confidence parameter of gamma process prior for the cumulative baseline hazard, \eqn{c_0 > 0}\cr
 #' \code{r} \tab the shape parameter of the gamma prior for \eqn{\lambda^2}\cr
 #' \code{delta} \tab the rate parameter of the gamma prior for \eqn{\lambda^2}\cr
 #' \code{s} \tab the set of time partitions for specification of the cumulative baseline hazard function\cr

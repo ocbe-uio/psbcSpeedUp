@@ -399,10 +399,12 @@ Rcpp::List drive( const std::string& dataFile, const int p, const int q, const s
     double r = chainData.r;
     double delta = chainData.delta;
     
+	// TODO: no need to define variables dataTime or dataDi
     arma::vec dataTime = chainData.survData.data->col( 0 );
     arma::vec dataDi = chainData.survData.data->col( 1 );
     arma::vec s0 = {0.}; //event times that are actually observed
     s0(0) = 2. * max( dataTime ) - max( dataTime.elem( arma::find(dataTime != max(dataTime)) ) );
+	// TODO: change joint_cols to insert.
     arma::vec s = arma::join_cols( arma::sort( dataTime.elem( arma::find(dataDi==1.) ) ), s0 );
     //s.raw_print(Rcout, "s:");
     int J = s.n_elem;

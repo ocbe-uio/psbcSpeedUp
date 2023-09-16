@@ -12,7 +12,7 @@
 \item{type}{type of point estimates of regressions. One of 
 \code{c("mean", "median")}. Default is \code{mean}}
 
-\item{...}{other arguments}
+\item{...}{not used}
 }
 \value{
 Estimated coefficients are from an object of class \code{psbcSpeedUp}. 

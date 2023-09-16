@@ -15,7 +15,7 @@
 \item{interval}{logical argument to show 95\% credible intervals. Default 
 is \code{TRUE}}
 
-\item{...}{other arguments}
+\item{...}{not used}
 }
 \description{
 Plot point estimates of regression coefficients and 95\% credible intervals

@@ -13,7 +13,7 @@
 #' \code{c("mean", "median", "mode")}. Default is \code{mean}
 #' @param interval logical argument to show 95\% credible intervals. Default 
 #' is \code{TRUE}
-#' @param ... other arguments
+#' @param ... not used
 #' 
 #'
 #' @examples
