@@ -34,7 +34,7 @@ arma::mat matProdVec( const arma::mat x, const arma::vec& y )
 // set a finite partition of the time axis to define the indicator matrices for risk sets and failure sets
 // in order to calculate the increment in the cumulative baseline hazard in each interval
 // also in order to construct the grouped data likelihood
-void settingInterval_cpp( const arma::vec y, const arma::vec delta_, const arma::vec s_, int J_, arma::mat& ind_d_, arma::mat& ind_r_, arma::mat& ind_r_d_, arma::vec& d_ )
+void settingInterval_cpp( const arma::vec y, const arma::vec delta_, const arma::vec s_, unsigned int J_, arma::mat& ind_d_, arma::mat& ind_r_, arma::mat& ind_r_d_, arma::vec& d_ )
 {
     ind_d_ = ind_r_ = arma::zeros<arma::mat>(y.n_elem, J_);
     
@@ -77,7 +77,7 @@ void settingInterval_cpp( const arma::vec y, const arma::vec delta_, const arma:
 
 // update cumulative baseline harzard
 // update the increment h_j in the cumulative baseline hazard in each interval
-arma::vec updateBH_cpp( arma::mat& ind_r_d_, arma::vec hPriorSh_, arma::vec& d_, double c0_, int J_, arma::vec xbeta_ )
+arma::vec updateBH_cpp( arma::mat& ind_r_d_, arma::vec hPriorSh_, arma::vec& d_, double c0_, unsigned int J_, arma::vec xbeta_ )
 {
     arma::mat exp_xbeta_mat = matProdVec( ind_r_d_, arma::exp( xbeta_ ) );
     arma::vec h_rate = c0_ + arma::sum( exp_xbeta_mat.t(), 1 );
@@ -143,7 +143,7 @@ double updateSigma_GL_cpp( int p, arma::vec be_normSq_, arma::vec tauSq_ )
 }
 
 // update hyperparameter lambda (variance shrinkage of tau) sampled from the full conditional gamma distribution
-double updateLambda_GL_cpp( int p, int K, double r, double delta, arma::vec tauSq_ )
+double updateLambda_GL_cpp( int p, unsigned int K, double r, double delta, arma::vec tauSq_ )
 {
     double sumTauSq = arma::accu( tauSq_ );
     double shape = (p + K) / 2. + r;
@@ -155,7 +155,7 @@ double updateLambda_GL_cpp( int p, int K, double r, double delta, arma::vec tauS
 }
 
 // update coefficients of clinical variables via a rw MH sampler
-void updateRP_clinical_cpp( int p, int q, const arma::mat x_, arma::mat& ind_r_, arma::mat& ind_d_, arma::mat& ind_r_d_, int J_, arma::vec beta_prop_me_, double beta_prop_sd, arma::mat& xbeta_, arma::vec& be_, arma::vec& h_, arma::vec sd_be_, arma::uvec& sampleRPc_accept_ )
+void updateRP_clinical_cpp( int p, int q, const arma::mat x_, arma::mat& ind_r_, arma::mat& ind_d_, arma::mat& ind_r_d_, unsigned int J_, arma::vec beta_prop_me_, double beta_prop_sd, arma::mat& xbeta_, arma::vec& be_, arma::vec& h_, arma::vec sd_be_, arma::uvec& sampleRPc_accept_ )
 {
     // select parameters to be updated; use p+j for clinical
     arma::uvec updatej = arma::randperm( q );
@@ -172,7 +172,7 @@ void updateRP_clinical_cpp( int p, int q, const arma::mat x_, arma::mat& ind_r_,
     double loglh_ini, loglh_prop, logprior_prop, logprior_ini, logprop_prop, logR, logprop_ini;
     
     int j = 0;
-    for( unsigned int j_id=0; j_id<q; j_id++ )
+    for( int j_id=0; j_id<q; j_id++ )
     {
         j = updatej(j_id);
         be_prop = be_;
@@ -214,7 +214,7 @@ void updateRP_clinical_cpp( int p, int q, const arma::mat x_, arma::mat& ind_r_,
 }
 
 // update coefficients of genomic variables via a MH sampler
-void updateRP_genomic_cpp( int p, const arma::mat x_, arma::mat& ind_r_, arma::mat& ind_d_, arma::mat& ind_r_d_, int J_, arma::mat& xbeta_, arma::vec& be_, arma::vec& h_, arma::vec sd_be_, arma::uvec& sampleRPg_accept_ )
+void updateRP_genomic_cpp( int p, const arma::mat x_, arma::mat& ind_r_, arma::mat& ind_d_, arma::mat& ind_r_d_, unsigned int J_, arma::mat& xbeta_, arma::vec& be_, arma::vec& h_, arma::vec sd_be_, arma::uvec& sampleRPg_accept_ )
 {
     arma::uvec updatej = arma::randperm(p);
     
@@ -233,7 +233,7 @@ void updateRP_genomic_cpp( int p, const arma::mat x_, arma::mat& ind_r_, arma::m
     double be_prop_sd = 1.;
     double be_prop_me_ini, be_prop_sd_ini, D1, D2, D1_prop, D2_prop, loglh_ini, loglh_prop, logprior_prop, logprior_ini, logprop_prop, logprop_ini, logR;
     int j = 0;
-    for( unsigned int j_id=0; j_id<p; j_id++ )
+    for( int j_id=0; j_id<p; j_id++ )
     {
         j = updatej(j_id);
         xbeta_.elem( arma::find(xbeta_ > 700) ).fill(700.);
@@ -254,8 +254,6 @@ void updateRP_genomic_cpp( int p, const arma::mat x_, arma::mat& ind_r_, arma::m
         D2_2nd_den = D1_2nd_den % D1_2nd_den;
         D2_2nd_num = matProdVec( exp_h_exp_xbeta_mat, x_sq_exp_xbeta ) % ( 1. - exp_h_exp_xbeta_mat + h_exp_xbeta_mat );
         D2_2nd = h_ % arma::sum( ( D2_2nd_num / D2_2nd_den % ind_d_ ).t(), 1 );
-        
-        // Wrong D2 at the 2nd iteration. D2 should be negative.
         D2 = arma::accu(D2_1st + D2_2nd) - 1. / sd_be_(j) / sd_be_(j);
         
         be_prop_me = be_(j) - D1 / D2;
@@ -311,7 +309,7 @@ void updateRP_genomic_cpp( int p, const arma::mat x_, arma::mat& ind_r_, arma::m
 }
 
 // update coefficients of genomic variables via a rw MH sampler, almost the same as updateRP_clinical_cpp()
-void updateRP_genomic_rw_cpp( int p, const arma::mat x_, arma::mat& ind_r_, arma::mat& ind_d_, arma::mat& ind_r_d_, int J_, arma::vec beta_prop_me_, double beta_prop_sd, arma::mat& xbeta_, arma::vec& be_, arma::vec& h_, arma::vec sd_be_, arma::uvec& sampleRPg_accept_ )
+void updateRP_genomic_rw_cpp( int p, const arma::mat x_, arma::mat& ind_r_, arma::mat& ind_d_, arma::mat& ind_r_d_, unsigned int J_, arma::vec beta_prop_me_, double beta_prop_sd, arma::mat& xbeta_, arma::vec& be_, arma::vec& h_, arma::vec sd_be_, arma::uvec& sampleRPg_accept_ )
 {
     // select parameters to be updated; use p+j for clinical
     arma::uvec updatej = arma::randperm( p );
@@ -328,8 +326,7 @@ void updateRP_genomic_rw_cpp( int p, const arma::mat x_, arma::mat& ind_r_, arma
     double loglh_ini, loglh_prop, logprior_prop, logprior_ini, logprop_prop, logR, logprop_ini;
     
     int j = 0;
-    
-    for( unsigned int j_id=0; j_id<p; j_id++ )
+    for( int j_id=0; j_id<p; j_id++ )
     {
         j = updatej(j_id);
         be_prop = be_;
@@ -399,17 +396,14 @@ Rcpp::List drive( const std::string& dataFile, const int p, const int q, const s
     double r = chainData.r;
     double delta = chainData.delta;
     
-	// TODO: no need to define variables dataTime or dataDi
     arma::vec dataTime = chainData.survData.data->col( 0 );
     arma::vec dataDi = chainData.survData.data->col( 1 );
     arma::vec s0 = {0.}; //event times that are actually observed
     s0(0) = 2. * max( dataTime ) - max( dataTime.elem( arma::find(dataTime != max(dataTime)) ) );
-	// TODO: change joint_cols to insert.
     arma::vec s = arma::join_cols( arma::sort( dataTime.elem( arma::find(dataDi==1.) ) ), s0 );
-    //s.raw_print(Rcout, "s:");
-    int J = s.n_elem;
+    unsigned int J = s.n_elem;
     arma::uvec groupNo = arma::unique( groupInd );
-    int K = groupNo.n_elem;
+    unsigned int K = groupNo.n_elem;
     arma::uvec m_k = arma::zeros<arma::uvec>( K );
     
     ind_r_d = ind_r = ind_d = arma::zeros<arma::mat>( chainData.survData.data->n_rows, J );
@@ -448,7 +442,6 @@ Rcpp::List drive( const std::string& dataFile, const int p, const int q, const s
     arma::vec xbeta = x * ini_beta;
     
     arma::vec be_normSq = arma::zeros<arma::vec>( K );
-    //TODO check
     for( unsigned int i=0; i<K; i++ )
     {
         be_normSq(i) = arma::accu( ini_beta( arma::find(groupInd == groupNo(i)) ) % ini_beta( arma::find(groupInd == groupNo(i)) ) );

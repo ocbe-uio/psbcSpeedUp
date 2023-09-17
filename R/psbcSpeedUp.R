@@ -14,13 +14,13 @@
 #' @importFrom utils write.table
 #'
 #' @param survObj The list containing observed data from \code{n} subjects;
-#' \code{t}, \code{di}, \code{x}
+#' \code{t}, \code{di}, \code{x}. See details for more information
 #' @param p number of covariates for variable selection
 #' @param q number of mandatory covariates
 #' @param hyperpar The list containing prior parameter values; among
-#' \code{c('beta.ini', 'lambdaSq', 'sigmaSq', 'tauSq', 'h', 'groupInd', 'eta0', 
-#' 'kappa0', 'c0', 'r', 'delta', 'beta.prop.var', 'beta.clin.var')}. See 
-#' details for more information
+#' \code{c('groupInd', 'beta.ini', 'eta0', 'kappa0', 'c0', 'r', 'delta', 
+#' 'lambdaSq', 'sigmaSq', 'tauSq', 'h', 'beta.prop.var', 'beta.clin.var')}. 
+#' See details for more information
 #' @param nIter the number of iterations of the chain
 #' @param burnin number of iterations to discard at the start of the chain. 
 #' Default is 0
@@ -39,19 +39,19 @@
 #' \code{t} \tab a vector of \code{n} times to the event \cr
 #' \code{di} \tab a vector of \code{n} censoring indicators for the event time (1=event occurred, 0=censored) \cr
 #' \code{x} \tab covariate matrix, \code{n} observations by \code{p} variables\cr
+#' \code{groupInd} \tab a vector of \code{p} group indicator for each variable\cr
+#' \code{beta.ini} \tab the starting values for coefficients \eqn{\beta}\cr
 #' \code{eta0} \tab scale parameter of gamma process prior for the cumulative baseline hazard, \eqn{\eta_0 > 0}\cr
 #' \code{kappa0} \tab shape parameter of gamma process prior for the cumulative baseline hazard, \eqn{\kappa_0 > 0}\cr
 #' \code{c0} \tab the confidence parameter of gamma process prior for the cumulative baseline hazard, \eqn{c_0 > 0}\cr
 #' \code{r} \tab the shape parameter of the gamma prior for \eqn{\lambda^2}\cr
 #' \code{delta} \tab the rate parameter of the gamma prior for \eqn{\lambda^2}\cr
-#' \code{s} \tab the set of time partitions for specification of the cumulative baseline hazard function\cr
-#' \code{groupInd} \tab a vector of \code{p} group indicator for each variable\cr
-#' \code{beta.ini} \tab the starting values for \eqn{\beta}\cr
 #' \code{lambdaSq} \tab the starting value for \eqn{\lambda^2}\cr
 #' \code{sigmaSq} \tab the starting value for \eqn{\sigma^2}\cr
 #' \code{tauSq} \tab the starting values for \eqn{\tau^2}\cr
 #' \code{h} \tab the starting values for \eqn{h}\cr
-#' \code{beta.prop.var} \tab the variance of the proposal density for \eqn{\beta} when \code{rw} is set to "TRUE"\cr
+#' \code{beta.prop.var} \tab the variance of the proposal density for \eqn{\beta} in a random walk M-H sampler\cr
+#' \code{beta.clin.var} \tab the starting value for the variance of \eqn{\beta}\cr
 #' }
 #'
 #' @return An object of class \code{psbcSpeedUp} is saved as 
@@ -67,7 +67,6 @@
 #' \item "\code{lambdaSq.p}" - a vector MCMC intermediate estimates of the hyperparameter "lambdaSq".
 #' \item "\code{accept.rate}" - a vector acceptance rates of individual regression coefficients.
 #' }
-#' \item call - the matched call.
 #' }
 #'
 #'
@@ -87,9 +86,9 @@
 #' survObj <- exampleData[1:3]
 #' 
 #' # Set hyperparameters
-#' mypriorPara <- list('kappa0'=1, 'c0'=2, 'r'=10/9, 'delta'=1e-05, 'groupInd'=c(1:p),
-#'                     'beta.prop.var'=1, 'beta.clin.var'=1, 'beta.ini'= rep(0,p+q), 
-#'                     'lambdaSq'=1, 'sigmaSq'= runif(1, 0.1, 10))
+#' mypriorPara <- list('groupInd'=c(1:p), 'beta.ini'= rep(0,p+q), 'kappa0'=1, 'c0'=2, 
+#'                     'r'=10/9, 'delta'=1e-05, 'lambdaSq'=1, 'sigmaSq'= runif(1, 0.1, 10), 
+#'                     'beta.prop.var'=1, 'beta.clin.var'=1)
 #' 
 #' # run Bayesian Lasso Cox
 #' library(psbcSpeedUp)
@@ -226,10 +225,11 @@ psbcSpeedUp <- function(survObj = NULL, p = 1, q = 0, hyperpar = list(),
   class(ret) <- "psbcSpeedUp"
   
   # Copy the inputs
-  ret$input["nIter"] <- nIter
-  ret$input["burnin"] <- burnin
   ret$input["p"] <- p
   ret$input["q"] <- q
+  ret$input["nIter"] <- nIter
+  ret$input["burnin"] <- burnin
+  ret$input["thin"] <- thin
   ret$input["rw"] <- rw
   ret$input["outFilePath"] <- outFilePath
   ret$input["tmpFolder"] <- tmpFolder
@@ -251,6 +251,10 @@ psbcSpeedUp <- function(survObj = NULL, p = 1, q = 0, hyperpar = list(),
   ## Save fitted object
   obj_psbc <- list(input = ret$input, output = ret$output)
   save(obj_psbc, file = paste(sep = "", outFilePath, "obj_psbc.rda"))
+  
+  if (outFilePath != tmpFolder) {
+    unlink(tmpFolder, recursive = TRUE)
+  }
   
   return(ret)
 }

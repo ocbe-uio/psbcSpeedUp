@@ -25,9 +25,9 @@
 #' survObj <- exampleData[1:3]
 #' 
 #' # Set hyperparameters
-#' mypriorPara <- list('kappa0'=1, 'c0'=2, 'r'=10/9, 'delta'=1e-05, 'groupInd'=c(1:p),
-#'                     'beta.prop.var'=1, 'beta.clin.var'=1, 'beta.ini'= rep(0,p+q), 
-#'                     'lambdaSq'=1, 'sigmaSq'= runif(1, 0.1, 10))
+#' mypriorPara <- list('groupInd'=c(1:p), 'beta.ini'= rep(0,p+q), 'kappa0'=1, 'c0'=2, 
+#'                     'r'=10/9, 'delta'=1e-05, 'lambdaSq'=1, 'sigmaSq'= runif(1, 0.1, 10), 
+#'                     'beta.prop.var'=1, 'beta.clin.var'=1)
 #' 
 #' # run Bayesian Lasso Cox
 #' library(psbcSpeedUp)
@@ -60,7 +60,7 @@ plot.psbcSpeedUp <- function(x, type = "mean", interval = TRUE, ...) {
     x_names <- colnames(x$output$beta.p)
   }
 
-  beta_p <- x$output$beta.p[-(1:(x$input$burnin + 1)), ]
+  beta_p <- x$output$beta.p[-(1:(x$input$burnin/x$input$thin + 1)), ]
   beta_est <- apply(beta_p, 2, type)
   beta_L <- apply(beta_p, 2, quantile, 0.025)
   beta_U <- apply(beta_p, 2, quantile, 0.975)
