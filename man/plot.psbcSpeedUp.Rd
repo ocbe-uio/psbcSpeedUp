@@ -16,7 +16,7 @@ is a matrix, use \code{plot.psbcSpeedUp(x)}}
 \item{interval}{logical argument to show 95\% credible intervals. Default 
 is \code{TRUE}}
 
-\item{...}{additional arguments sent to \code{ggplot2::geom_point()’}}
+\item{...}{additional arguments sent to \code{ggplot2::geom_point()}}
 }
 \value{
 ggplot object

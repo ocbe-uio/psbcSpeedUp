@@ -1,9 +1,13 @@
-//#ifndef UTILS
-//#define UTILS
+#ifndef UTILS
+#define UTILS
 
-#include <RcppArmadillo.h>
+#ifdef CCODE
+    #include <iostream>
+    #include <armadillo>
+#else
+    #include <RcppArmadillo.h>
+#endif
 
-#include <iostream>
 #include <memory>
 #include <string>
 #include <cmath>
@@ -142,4 +146,4 @@ namespace Utils{
 		
 }
 
-//#endif
+#endif

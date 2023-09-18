@@ -8,6 +8,11 @@
     #define Rcerr std::cerr
 #endif
 
+#ifdef _OPENMP
+extern omp_lock_t RNGlock; /*defined in global.h*/
+#endif
+/*extern std::vector<std::mt19937_64> rng;*/
+
 // not yet set up openmp
 #include <Rcpp.h>
 // [[Rcpp::plugins(openmp)]]
@@ -86,7 +91,8 @@ arma::vec updateBH_cpp( arma::mat& ind_r_d_, arma::vec hPriorSh_, arma::vec& d_,
     arma::vec h_ = arma::zeros<arma::vec>( J_ );
     for( unsigned int j=0; j<J_; j++ )
     {
-        h_(j) = R::rgamma( shape(j), 1. / h_rate(j) );
+        //h_(j) = R::rgamma( shape(j), 1. / h_rate(j) );
+        h_(j) = arma::randg( arma::distr_param( shape(j), 1. / h_rate(j) ) );
     }
     
     return h_;
@@ -101,10 +107,12 @@ arma::vec rinvgauss( arma::vec a, double b )
 
     for( unsigned int i=0; i<n; ++i )
     {
-        z = R::rnorm(0., 1.);
+        //z = R::rnorm(0., 1.);
+        z = arma::randn();
         y = z*z;
         x = a(i) + 0.5*a(i)*a(i)*y/b - 0.5 * (a(i)/b) * sqrt( 4.*a(i)*b*y+a(i)*a(i)*y*y );
-        u = R::runif(0., 1.);
+        //u = R::runif(0., 1.);
+        u = arma::randu();
         if( u <= a(i) / ( a(i)+x ) )
         {
             pars(i) = x;
@@ -140,7 +148,8 @@ arma::vec updateTau_GL_cpp( double lambdaSq_, double sigmaSq_, arma::vec be_norm
 double updateSigma_GL_cpp( int p, arma::vec be_normSq_, arma::vec tauSq_ )
 {
     double rate_sig = 0.5 * arma::accu( be_normSq_ / tauSq_ );
-    double sigmaSq = 1. / R::rgamma( p / 2., 1. / rate_sig );
+    //double sigmaSq = 1. / R::rgamma( p / 2., 1. / rate_sig );
+    double sigmaSq = 1. / arma::randg( arma::distr_param( p / 2., 1. / rate_sig ) );
     
     return sigmaSq;
 }
@@ -152,7 +161,8 @@ double updateLambda_GL_cpp( int p, unsigned int K, double r, double delta, arma:
     double shape = (p + K) / 2. + r;
     double rate = sumTauSq / 2. + delta;
     //Rcout << "updateLambda_GL_cpp -- tauSq_" << tauSq_ << "; delta=" << delta << "; shape=" << shape << "; rate=" << rate << "\n";
-    double lambdaSq = R::rgamma( shape, 1. / rate );
+    //double lambdaSq = R::rgamma( shape, 1. / rate );
+    double lambdaSq = arma::randg( arma::distr_param( shape, 1. / rate ) );
     
     return lambdaSq;
 }
@@ -189,7 +199,8 @@ void updateRP_clinical_cpp( int p, int q, const arma::mat x_, arma::mat& ind_r_,
         loglh_ini = arma::accu( - h_ % first_sum + second_sum );
         
         // clinical version:
-        be_prop( p + j ) = R::rnorm( beta_prop_me_(p+j), beta_prop_sd );
+        //be_prop( p + j ) = R::rnorm( beta_prop_me_(p+j), beta_prop_sd );
+        be_prop( p + j ) = arma::randn( arma::distr_param( beta_prop_me_(p+j), beta_prop_sd ) );
         xbeta_prop = xbeta_ - x_.col(p+j) * be_(p+j) + x_.col(p+j) * be_prop(p+j);
         xbeta_prop.elem( arma::find( xbeta_prop > 700.) ).fill( 700. );
         exp_xbeta_prop = arma::exp( xbeta_prop );
@@ -201,13 +212,18 @@ void updateRP_clinical_cpp( int p, int q, const arma::mat x_, arma::mat& ind_r_,
         second_sum_prop = arma::sum( ( h_exp_xbeta_prop_mat % ind_d_ ).t(), 1 );
         
         loglh_prop = arma::accu( - h_ % first_sum_prop + second_sum_prop );
-        logprior_prop = R::dnorm( be_prop(p+j), 0.0, sd_be_(p+j), true);
+        /*logprior_prop = R::dnorm( be_prop(p+j), 0.0, sd_be_(p+j), true);
         logprior_ini = R::dnorm( be_(p+j), 0.0, sd_be_(p+j), true);
         logprop_prop = R::dnorm( be_prop(p+j), beta_prop_me_(p+j), beta_prop_sd, true);
-        logprop_ini = R::dnorm( be_(p+j), beta_prop_me_(p+j), beta_prop_sd, true);
+        logprop_ini = R::dnorm( be_(p+j), beta_prop_me_(p+j), beta_prop_sd, true);*/
+        logprior_prop = arma::log_normpdf( be_prop(p+j), 0.0, sd_be_(p+j) );
+        logprior_ini = arma::log_normpdf( be_(p+j), 0.0, sd_be_(p+j) );
+        logprop_prop = arma::log_normpdf( be_prop(p+j), beta_prop_me_(p+j), beta_prop_sd );
+        logprop_ini = arma::log_normpdf( be_(p+j), beta_prop_me_(p+j), beta_prop_sd );
         logR = loglh_prop - loglh_ini + logprior_prop - logprior_ini + logprop_ini - logprop_prop;
         
-        if( log( R::runif(0., 1.) ) < logR )
+        //if( log( R::runif(0., 1.) ) < logR )
+        if( log( arma::randu() ) < logR )
         {
             be_(p+j) = be_prop(p+j);
             xbeta_ = xbeta_prop;
@@ -264,7 +280,8 @@ void updateRP_genomic_cpp( int p, const arma::mat x_, arma::mat& ind_r_, arma::m
         be_prop = be_;
         
         // genomic version:
-        be_prop(j) = R::rnorm( be_prop_me, be_prop_sd );
+        //be_prop(j) = R::rnorm( be_prop_me, be_prop_sd );
+        be_prop( j ) = arma::randn( arma::distr_param( be_prop_me, be_prop_sd ) );
         xbeta_prop = xbeta_ - x_.col(j) * be_(j) + x_.col(j) * be_prop(j);
         xbeta_prop.elem( arma::find(xbeta_prop > 700) ).fill( 700. );
         exp_xbeta_prop = arma::exp( xbeta_prop );
@@ -296,12 +313,18 @@ void updateRP_genomic_cpp( int p, const arma::mat x_, arma::mat& ind_r_, arma::m
         second_sum_prop = arma::sum( ( arma::log(D1_2nd_den_prop) % ind_d_ ).t(), 1 );
         loglh_prop = arma::accu( - h_ % first_sum_prop + second_sum_prop );
         
-        logprior_prop = R::dnorm( be_prop(j), 0.0, sd_be_(j), true);
+        /*logprior_prop = R::dnorm( be_prop(j), 0.0, sd_be_(j), true);
         logprior_ini = R::dnorm( be_(j), 0.0, sd_be_(j), true);
         logprop_prop = R::dnorm( be_prop(j), be_prop_me_ini, be_prop_sd_ini, true);
-        logprop_ini = R::dnorm( be_(j), be_prop_me, be_prop_sd, true);
+        logprop_ini = R::dnorm( be_(j), be_prop_me, be_prop_sd, true);*/
+        logprior_prop = arma::log_normpdf( be_prop(j), 0.0, sd_be_(j) );
+        logprior_ini = arma::log_normpdf( be_(j), 0.0, sd_be_(j) );
+        logprop_prop = arma::log_normpdf( be_prop(j), be_prop_me_ini, be_prop_sd_ini );
+        logprop_ini = arma::log_normpdf( be_(j), be_prop_me, be_prop_sd );
         logR = loglh_prop - loglh_ini + logprior_prop - logprior_ini + logprop_ini - logprop_prop;
-        if( log( R::runif(0., 1.) ) < logR )
+        
+        //if( log( R::runif(0., 1.) ) < logR )
+        if( log( arma::randu() ) < logR )
         {
             be_(j) = be_prop( j );
             xbeta_ = xbeta_prop;
@@ -343,7 +366,8 @@ void updateRP_genomic_rw_cpp( int p, const arma::mat x_, arma::mat& ind_r_, arma
         loglh_ini = arma::accu( -h_ % first_sum + second_sum );
         
         // clinical version:
-        be_prop( j ) = R::rnorm( beta_prop_me_(j), beta_prop_sd );
+        //be_prop( j ) = R::rnorm( beta_prop_me_(j), beta_prop_sd );
+        be_prop( j ) = arma::randn( arma::distr_param( beta_prop_me_(j), beta_prop_sd ) );
         xbeta_prop = xbeta_ - x_.col(j) * be_(j) + x_.col(j) * be_prop(j);
         xbeta_prop.elem( arma::find( xbeta_prop > 700) ).fill( 700. );
         exp_xbeta_prop = arma::exp( xbeta_prop );
@@ -355,13 +379,18 @@ void updateRP_genomic_rw_cpp( int p, const arma::mat x_, arma::mat& ind_r_, arma
         second_sum_prop = arma::sum( ( arma::log(h_exp_xbeta_prop_mat) % ind_d_ ).t(), 1 );
         
         loglh_prop = arma::accu( - h_ % first_sum_prop + second_sum_prop );
-        logprior_prop = R::dnorm( be_prop(j), 0.0, sd_be_(j), true);
+        /*logprior_prop = R::dnorm( be_prop(j), 0.0, sd_be_(j), true);
         logprior_ini = R::dnorm( be_(j), 0.0, sd_be_(j), true);
         logprop_prop = R::dnorm( be_prop(j), beta_prop_me_(j), beta_prop_sd, true);
-        logprop_ini = R::dnorm( be_(j), beta_prop_me_(j), beta_prop_sd, true);
+        logprop_ini = R::dnorm( be_(j), beta_prop_me_(j), beta_prop_sd, true);*/
+        logprior_prop = arma::log_normpdf( be_prop(j), 0.0, sd_be_(j) );
+        logprior_ini = arma::log_normpdf( be_(j), 0.0, sd_be_(j) );
+        logprop_prop = arma::log_normpdf( be_prop(j), beta_prop_me_(j), beta_prop_sd );
+        logprop_ini = arma::log_normpdf( be_(j), beta_prop_me_(j), beta_prop_sd );
         logR = loglh_prop - loglh_ini + logprior_prop - logprior_ini + logprop_ini - logprop_prop;
         
-        if( log( R::runif(0., 1.) ) < logR )
+        //if( log( R::runif(0., 1.) ) < logR )
+        if( log( arma::randu() ) < logR )
         {
             be_(j) = be_prop(j);
             xbeta_ = xbeta_prop;
@@ -376,6 +405,18 @@ Rcpp::List drive( const std::string& dataFile, const int p, const int q, const s
                  const arma::vec ini_beta, const arma::vec ini_tauSq, const arma::vec ini_h, const arma::uvec groupInd,
           unsigned int nIter, unsigned int nChains, unsigned int thin, bool rw)
 {
+    
+    // set random seed
+    #ifdef _OPENMP
+        omp_init_lock(&RNGlock);  // init RNG lock for the parallel part
+    // std::atomic<std::size_t> counter(0);
+    // #pragma omp parallel
+    //    {
+    //    arma::arma_rng::set_seed(123 + counter++);
+    //    }
+    // #else
+    //    arma::arma_rng::set_seed(123);
+    #endif
     
     // ###########################################################
     // ## Read Arguments and Data

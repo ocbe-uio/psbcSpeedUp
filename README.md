@@ -25,6 +25,8 @@ covariates `x`,
 number of genomics variables `p`,
 number of clinical variables `q` and
 true effects of covariates `beta_true`.
+See `?exampleData` for more information of the data.
+To run a Bayesian Lasso Cox model for variable selection of the first $p$ genomics variables, one can specify the hyperparameter `groupInd = 1:p`.
 
 ```r
 # Load the example dataset
@@ -34,18 +36,17 @@ q <- exampleData$q
 survObj <- exampleData[1:3]
 
 # Set hyperparameters (see help file for specifying more hyperparameters)
-
-mypriorPara <- list('kappa0'=1, 'c0'=2, 'r'=10/9, 'delta'=1e-05, 'groupInd'=c(1:p),
-'beta.prop.var'=1, 'beta.clin.var'=1, 'beta.ini'= rep(0,p+q),
-'lambdaSq'=1, 'sigmaSq'= runif(1, 0.1, 10))
+mypriorPara <- list('groupInd'=1:p, 'beta.ini'= rep(0,p+q), 'kappa0'=1,
+'c0'=2, 'r'=10/9, 'delta'=1e-05, 'lambdaSq'=1, 'sigmaSq'= runif(1, 0.1, 10),
+'beta.prop.var'=1, 'beta.clin.var'=1)
 
 # run Bayesian Lasso Cox
-library(psbcSpeedUp)
 set.seed(123)
-fitBayesCox =  psbcSpeedUp(survObj, p=p, q=q, hyperpar=mypriorPara, nIter=1000, burnin=500, outFilePath="/tmp")
+fitBayesCox <- psbcSpeedUp(survObj, p=p, q=q, hyperpar=mypriorPara,
+nIter=1000, burnin=500, outFilePath="/tmp")
 ```
 
-```r
+```
 Running MCMC iterations ...
 [##################################################] 100%
 DONE, exiting!

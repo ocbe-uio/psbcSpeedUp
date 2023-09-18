@@ -1,6 +1,7 @@
-//#ifndef DRIVEPSBC
-//#define DRIVEPSBC
+#ifndef DRIVEPSBC
+#define DRIVEPSBC
 
+#include "global.h"
 #include "utils.h"
 
 #include <vector>
@@ -38,4 +39,4 @@ Rcpp::List psbcSpeedUp_internal( const std::string& dataFile, const int p, const
                          const std::string& outFilePath,
                                 const arma::vec ini_beta, const arma::vec ini_tauSq, const arma::vec ini_h, const arma::uvec groupInd,
                          unsigned int nIter=10, unsigned int nChains=1, unsigned int thin=1, bool rw=false );
-//#endif
+#endif

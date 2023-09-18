@@ -14,7 +14,7 @@
 #' \code{c("mean", "median")}. Default is \code{mean}
 #' @param interval logical argument to show 95\% credible intervals. Default 
 #' is \code{TRUE}
-#' @param ... additional arguments sent to \code{ggplot2::geom_point()’}
+#' @param ... additional arguments sent to \code{ggplot2::geom_point()}
 #' 
 #' @return ggplot object
 #'
