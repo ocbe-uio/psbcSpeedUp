@@ -1,6 +1,8 @@
 # psbcSpeedUp
 
-This is a C++ speed-up and extended version of the R-pakcage [psbcGroup](https://CRAN.R-project.org/package=psbcGroup). It implements the Bayesian Lasso Cox model ([Lee et al., 2011](https://doi.org/10.2202/1557-4679.1301)) and the Bayesian Lasso Cox with mandatory variables ([Zucknick et al., 2015](https://doi.org/10.1002/bimj.201400160)). Bayesian Lasso Cox models with other shrinkage and group priors ([Lee et al., 2015](https://doi.org/10.1002/sam.11266)) are to be implemented later on.
+This is a C++ speed-up and extended version of the R-pakcage [psbcGroup](https://CRAN.R-project.org/package=psbcGroup).
+It implements the Bayesian Lasso Cox model ([Lee et al., 2011](https://doi.org/10.2202/1557-4679.1301)) and the Bayesian Lasso Cox with mandatory variables ([Zucknick et al., 2015](https://doi.org/10.1002/bimj.201400160)).
+Bayesian Lasso Cox models with other shrinkage and group priors ([Lee et al., 2015](https://doi.org/10.1002/sam.11266)) are to be implemented later on.
 
 ## Installation
 
@@ -16,8 +18,13 @@ library("psbcSpeedUp")
 
 ### Run a Bayesian Lasso Cox with mandatory variables
 
-Data set `exampleData`six components: survival times `t`, event status `di`, covariates
-`x`, number of genomics variables `p`, number of clinical variables `q` and true effects of covariates `beta_true`.
+Data set `exampleData` consists of six components:
+survival times `t`,
+event status `di`,
+covariates `x`,
+number of genomics variables `p`,
+number of clinical variables `q` and
+true effects of covariates `beta_true`.
 
 ```r
 # Load the example dataset

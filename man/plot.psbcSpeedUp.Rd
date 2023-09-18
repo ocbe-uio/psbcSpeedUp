@@ -7,15 +7,19 @@
 \method{plot}{psbcSpeedUp}(x, type = "mean", interval = TRUE, ...)
 }
 \arguments{
-\item{x}{an object of class \code{psbcSpeedUp}}
+\item{x}{an object of class \code{psbcSpeedUp} or a matrix. If \code{x} 
+is a matrix, use \code{plot.psbcSpeedUp(x)}}
 
 \item{type}{type of point estimates of regression coefficients. One of 
-\code{c("mean", "median", "mode")}. Default is \code{mean}}
+\code{c("mean", "median")}. Default is \code{mean}}
 
 \item{interval}{logical argument to show 95\% credible intervals. Default 
 is \code{TRUE}}
 
-\item{...}{not used}
+\item{...}{additional arguments sent to \code{ggplot2::geom_point()’}}
+}
+\value{
+ggplot object
 }
 \description{
 Plot point estimates of regression coefficients and 95\% credible intervals
@@ -29,7 +33,7 @@ q <- exampleData$q
 survObj <- exampleData[1:3]
 
 # Set hyperparameters
-mypriorPara <- list('groupInd'=c(1:p), 'beta.ini'= rep(0,p+q), 'kappa0'=1, 'c0'=2, 
+mypriorPara <- list('groupInd'=1:p, 'beta.ini'= rep(0,p+q), 'kappa0'=1, 'c0'=2, 
                     'r'=10/9, 'delta'=1e-05, 'lambdaSq'=1, 'sigmaSq'= runif(1, 0.1, 10), 
                     'beta.prop.var'=1, 'beta.clin.var'=1)
 
@@ -38,6 +42,6 @@ library(psbcSpeedUp)
 set.seed(123)
 fitBayesCox =  psbcSpeedUp(survObj, p=p, q=q, hyperpar=mypriorPara, 
 nIter=10, burnin=0, outFilePath=tempdir())
-plot(fitBayesCox)
+plot(fitBayesCox, color="blue")
 
 }

@@ -4,17 +4,19 @@
 #' 
 #' @name plot.psbcSpeedUp
 #' 
-#' @importFrom stats quantile
-#' @importFrom GGally ggcoef 
+#' @importFrom GGally ggcoef
 #' @importFrom ggplot2 xlab ylab
+#' @importFrom stats quantile
 #' 
-#' @param x an object of class \code{psbcSpeedUp}
+#' @param x an object of class \code{psbcSpeedUp} or a matrix. If \code{x} 
+#' is a matrix, use \code{plot.psbcSpeedUp(x)}
 #' @param type type of point estimates of regression coefficients. One of 
-#' \code{c("mean", "median", "mode")}. Default is \code{mean}
+#' \code{c("mean", "median")}. Default is \code{mean}
 #' @param interval logical argument to show 95\% credible intervals. Default 
 #' is \code{TRUE}
-#' @param ... not used
+#' @param ... additional arguments sent to \code{ggplot2::geom_point()’}
 #' 
+#' @return ggplot object
 #'
 #' @examples
 #' 
@@ -25,7 +27,7 @@
 #' survObj <- exampleData[1:3]
 #' 
 #' # Set hyperparameters
-#' mypriorPara <- list('groupInd'=c(1:p), 'beta.ini'= rep(0,p+q), 'kappa0'=1, 'c0'=2, 
+#' mypriorPara <- list('groupInd'=1:p, 'beta.ini'= rep(0,p+q), 'kappa0'=1, 'c0'=2, 
 #'                     'r'=10/9, 'delta'=1e-05, 'lambdaSq'=1, 'sigmaSq'= runif(1, 0.1, 10), 
 #'                     'beta.prop.var'=1, 'beta.clin.var'=1)
 #' 
@@ -34,39 +36,51 @@
 #' set.seed(123)
 #' fitBayesCox =  psbcSpeedUp(survObj, p=p, q=q, hyperpar=mypriorPara, 
 #' nIter=10, burnin=0, outFilePath=tempdir())
-#' plot(fitBayesCox)
+#' plot(fitBayesCox, color="blue")
 #'
 #' @export
 plot.psbcSpeedUp <- function(x, type = "mean", interval = TRUE, ...) {
-  if (!inherits(x, "psbcSpeedUp")) {
-    stop("Use only with \"psbcSpeedUp\" objects")
+  if (!(inherits(x, "psbcSpeedUp") | is.matrix(x))) {
+    stop("Use only with 'psbcSpeedUp' object or a matrix!")
   }
 
   if (length(type)==1) {
-    if (! type %in% c("mean", "median", "mode")) {
-      stop("'type' should be one of c('mean', 'median', 'mode')!")
+    if (! type %in% c("mean", "median")) {
+      stop("'type' should be one of c('mean', 'median')!")
     }
   } else {
-    stop("'type' should be one of c('mean', 'median', 'mode')!")
+    stop("'type' should be one of c('mean', 'median')!")
   }
   
   if (!is.logical(interval))
     stop("Argument 'interval' must be a logical value!")
   
-  #pdf("psbcBeta.pdf", height = 5, width = 3.5)
-  if (is.null(colnames(x$output$beta.p))) {
-    x_names <- paste0("x", 1:ncol(x$output$beta.p))
+  if (inherits(x, "psbcSpeedUp")) {
+    if (is.null(colnames(x$output$beta.p))) {
+      x_names <- paste0("x", 1:ncol(x$output$beta.p))
+    } else {
+      x_names <- colnames(x$output$beta.p)
+    }
+    beta_p <- x$output$beta.p[-(1:(x$input$burnin/x$input$thin + 1)), ]
   } else {
-    x_names <- colnames(x$output$beta.p)
+    if (is.null(colnames(x))) {
+      x_names <- paste0("x", 1:ncol(x))
+    } else {
+      x_names <- colnames(x)
+    }
+    beta_p <- x
   }
-
-  beta_p <- x$output$beta.p[-(1:(x$input$burnin/x$input$thin + 1)), ]
+  
+  #pdf("psbcBeta.pdf", height = 5, width = 3.5)
   beta_est <- apply(beta_p, 2, type)
   beta_L <- apply(beta_p, 2, quantile, 0.025)
   beta_U <- apply(beta_p, 2, quantile, 0.975)
   tbl <- data.frame(term = x_names, estimate = beta_est,  conf.low = beta_L,  conf.high = beta_U)
   tbl$term <- factor(tbl$term, levels = tbl$term)
   
-  ggcoef(tbl) + xlab(expression(Posterior~~beta)) + ylab("")
+  # Sys.setenv(`_R_S3_METHOD_REGISTRATION_NOTE_OVERWRITES_` = "false")
+  pCoef <- GGally::ggcoef(tbl, ...) + xlab(expression(Posterior~~beta)) + ylab("")
+  pCoef
   #dev.off()
 }
+

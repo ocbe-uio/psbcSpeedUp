@@ -86,7 +86,7 @@
 #' survObj <- exampleData[1:3]
 #' 
 #' # Set hyperparameters
-#' mypriorPara <- list('groupInd'=c(1:p), 'beta.ini'= rep(0,p+q), 'kappa0'=1, 'c0'=2, 
+#' mypriorPara <- list('groupInd'=1:p, 'beta.ini'= rep(0,p+q), 'kappa0'=1, 'c0'=2, 
 #'                     'r'=10/9, 'delta'=1e-05, 'lambdaSq'=1, 'sigmaSq'= runif(1, 0.1, 10), 
 #'                     'beta.prop.var'=1, 'beta.clin.var'=1)
 #' 
@@ -95,7 +95,7 @@
 #' set.seed(123)
 #' fitBayesCox <- psbcSpeedUp(survObj, p=p, q=q, hyperpar=mypriorPara, 
 #' nIter=10, burnin=0, outFilePath=tempdir())
-#' plot(fitBayesCox)
+#' plot(fitBayesCox, color="blue")
 #'
 #' @export
 psbcSpeedUp <- function(survObj = NULL, p = 1, q = 0, hyperpar = list(), 
@@ -107,13 +107,21 @@ psbcSpeedUp <- function(survObj = NULL, p = 1, q = 0, hyperpar = list(),
     stop("Argument 'survObj' must be an input")
   if (sum(names(survObj) %in% c("t", "di", "x")) != 3)
     stop("List 'survObj' must have three compoents 't', 'di' and 'x'!")
+  if (is.data.frame(survObj$x) | is.matrix(survObj$x)) {
+    if (is.data.frame(survObj$x))
+      survObj$x <- data.matrix(survObj$x)
+  } else {
+    stop("Data 'survObj$x' must be a dataframe or a matrix!")
+  }
   
-  if (p%%1 != 0 | p < 0)
+  if (p%%1 != 0 | p < 1)
     stop("Argument 'p' must be a positive integer!")
   if (q%%1 != 0 | q < 0)
     stop("Argument 'q' must be a positive integer!")
   if (p + q != ncol(survObj$x))
     stop("The sum of 'p' and 'q' must equal the number of columns of 'survObj$x'!")
+  if (thin%%1 != 0 | thin < 1)
+    stop("Argument 'thin' must be a positive integer!")
   
   # Check the directory for the output files
   if (outFilePath == "") 
@@ -212,13 +220,13 @@ psbcSpeedUp <- function(survObj = NULL, p = 1, q = 0, hyperpar = list(),
     hyperpar$beta.prop.var <- hyperpar$beta.clin.var <- NULL
   
   ## Set up the XML file for hyperparameters
-  xml <- as_xml_document(
+  xml <- xml2::as_xml_document(
     list(hyperparameters = list(
       lapply( hyperpar, function(x) list(format(x, scientific=FALSE)) ) # every element in the list should be a list
     ))
   )
   hyperParFile <- paste(sep = "", tmpFolder, "hyperpar.xml")
-  write_xml(xml, file = hyperParFile)
+  xml2::write_xml(xml, file = hyperParFile)
   
   ## Create the return object
   ret <- list(input = list(), output = list())

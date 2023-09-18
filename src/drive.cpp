@@ -43,7 +43,7 @@ void settingInterval_cpp( const arma::vec y, const arma::vec delta_, const arma:
     arma::uvec case1yleq;
     arma::uvec case1ygeq;
     
-    double smax = arma::max(s_);
+    double smax = max(s_);
     case0yleq = arma::find( delta_ == 0. && y <= smax );
     case0ygeq = arma::find( delta_ == 0. && y > smax );
     case1yleq = arma::find( delta_ == 1. && y <= smax );
@@ -52,7 +52,7 @@ void settingInterval_cpp( const arma::vec y, const arma::vec delta_, const arma:
     int cen_j;
     for( unsigned int i = 0; i < case1yleq.n_elem; i++ )
     {
-        cen_j = arma::min( arma::find( s_ >= y(case1yleq(i)) ) );
+        cen_j = min( arma::find( s_ >= y(case1yleq(i)) ) );
         ind_d_( case1yleq(i), cen_j ) = 1.;
         ind_r_.submat( case1yleq(i), 0, case1yleq(i), cen_j ).fill( 1. );
         //Rcout << cen_j << ",";
@@ -60,7 +60,7 @@ void settingInterval_cpp( const arma::vec y, const arma::vec delta_, const arma:
     
     for( unsigned int i = 0; i < case0yleq.n_elem; i++ )
     {
-        cen_j = arma::min( arma::find( s_ >= y(case0yleq(i)) ) );
+        cen_j = min( arma::find( s_ >= y(case0yleq(i)) ) );
         ind_r_.submat( case0yleq(i), 0, case0yleq(i), cen_j ).fill( 1. );
     }
     
@@ -118,13 +118,16 @@ arma::vec rinvgauss( arma::vec a, double b )
 // update hyperparameter tau (variance shrinkage of coefficients) sampled from the full conditional inverse-Gaussian distribution
 arma::vec updateTau_GL_cpp( double lambdaSq_, double sigmaSq_, arma::vec be_normSq_ )
 {
-    arma::vec nu;
+    arma::vec nu = arma::ones<arma::vec>( be_normSq_.n_elem );
     //Rcout << "updateTau_GL_cpp -- lambdaSq=" << lambdaSq_ << "sigmaSq=" << sigmaSq_ << "\n";
-    nu = sqrt( lambdaSq_ * sigmaSq_ / be_normSq_ );
-    
-    if( nu.has_inf() )
+    if( arma::any( be_normSq_ != 0 ) )
     {
-        nu( arma::find_nonfinite(nu)).fill( arma::max( nu(arma::find_finite(nu)) ) + 10. );
+        nu = sqrt( lambdaSq_ * sigmaSq_ / be_normSq_ );
+        if( nu.has_inf() )
+            nu.elem( arma::find_nonfinite(nu)).fill( max( nu.elem(arma::find_finite(nu)) ) + 10. );
+        
+    } else {
+        nu.fill( 10. );
     }
     
     arma::vec tauSq = rinvgauss( nu, lambdaSq_ );
@@ -424,12 +427,12 @@ Rcpp::List drive( const std::string& dataFile, const int p, const int q, const s
     
   // tausq: only for genomic variables
     arma::vec tauSq_exp = arma::zeros<arma::vec>( p );
-    arma::uvec tmp;
+    arma::uvec groupNoLocation;
     for( unsigned int i=0; i<K; i++ )
     {
-        tmp = arma::find( groupInd == groupNo(i) );
-        m_k(i) = tmp.n_elem;
-        tauSq_exp( arma::find( groupInd == groupNo(i) ) ).fill(tauSq(i));
+        groupNoLocation = arma::find( groupInd == groupNo(i) );
+        m_k(i) = groupNoLocation.n_elem;
+        tauSq_exp.elem( groupNoLocation ).fill( tauSq(i) );
     }
    
     double beta_prop_sd = sqrt(chainData.beta_prop_var);
@@ -444,7 +447,7 @@ Rcpp::List drive( const std::string& dataFile, const int p, const int q, const s
     arma::vec be_normSq = arma::zeros<arma::vec>( K );
     for( unsigned int i=0; i<K; i++ )
     {
-        be_normSq(i) = arma::accu( ini_beta( arma::find(groupInd == groupNo(i)) ) % ini_beta( arma::find(groupInd == groupNo(i)) ) );
+        be_normSq(i) = arma::accu( ini_beta.elem( arma::find(groupInd == groupNo(i)) ) % ini_beta.elem( arma::find(groupInd == groupNo(i)) ) );
     }
     
     if( !any( be_normSq ) )
@@ -505,7 +508,7 @@ Rcpp::List drive( const std::string& dataFile, const int p, const int q, const s
         }
         
         for( unsigned int i=0; i<K; i++ )
-            be_normSq(i) = arma::accu( be( arma::find(groupInd == groupNo(i)) ) % be( arma::find(groupInd == groupNo(i)) ) );
+            be_normSq(i) = arma::accu( be.elem( arma::find(groupInd == groupNo(i)) ) % be.elem( arma::find(groupInd == groupNo(i)) ) );
         
         h = updateBH_cpp( ind_r_d, hPriorSh, d, c0, J, xbeta );
             
@@ -513,7 +516,7 @@ Rcpp::List drive( const std::string& dataFile, const int p, const int q, const s
         
         for( unsigned int i=0; i<K; i++ )
         {
-            tauSq_exp(arma::find(groupInd == groupNo(i))).fill(tauSq(i));
+            tauSq_exp.elem( arma::find(groupInd == groupNo(i)) ).fill( tauSq(i) );
         }
 
         sigmaSq = updateSigma_GL_cpp( p, be_normSq, tauSq);

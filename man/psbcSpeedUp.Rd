@@ -101,7 +101,7 @@ q <- exampleData$q
 survObj <- exampleData[1:3]
 
 # Set hyperparameters
-mypriorPara <- list('groupInd'=c(1:p), 'beta.ini'= rep(0,p+q), 'kappa0'=1, 'c0'=2, 
+mypriorPara <- list('groupInd'=1:p, 'beta.ini'= rep(0,p+q), 'kappa0'=1, 'c0'=2, 
                     'r'=10/9, 'delta'=1e-05, 'lambdaSq'=1, 'sigmaSq'= runif(1, 0.1, 10), 
                     'beta.prop.var'=1, 'beta.clin.var'=1)
 
@@ -110,7 +110,7 @@ library(psbcSpeedUp)
 set.seed(123)
 fitBayesCox <- psbcSpeedUp(survObj, p=p, q=q, hyperpar=mypriorPara, 
 nIter=10, burnin=0, outFilePath=tempdir())
-plot(fitBayesCox)
+plot(fitBayesCox, color="blue")
 
 }
 \references{
