@@ -11,7 +11,6 @@ Install the latest development version from GitHub
 ```r
 library("devtools")
 devtools::install_github("ocbe-uio/psbcSpeedUp")
-library("psbcSpeedUp")
 ```
 
 ## Examples
@@ -41,6 +40,7 @@ mypriorPara <- list('groupInd'=1:p, 'beta.ini'= rep(0,p+q), 'kappa0'=1,
 'beta.prop.var'=1, 'beta.clin.var'=1)
 
 # run Bayesian Lasso Cox
+library("psbcSpeedUp")
 set.seed(123)
 fitBayesCox <- psbcSpeedUp(survObj, p=p, q=q, hyperpar=mypriorPara,
 nIter=1000, burnin=500, outFilePath="/tmp")

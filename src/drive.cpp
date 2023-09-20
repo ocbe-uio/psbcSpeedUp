@@ -91,13 +91,12 @@ arma::vec updateBH_cpp( arma::mat& ind_r_d_, arma::vec hPriorSh_, arma::vec& d_,
     arma::vec h_ = arma::zeros<arma::vec>( J_ );
     for( unsigned int j=0; j<J_; j++ )
     {
-        h_(j) = R::rgamma( shape(j), 1. / h_rate(j) );
         if( shape(j) != 0. )
         {
             //h_(j) = R::rgamma( shape(j), 1. / h_rate(j) );
             h_(j) = arma::randg( arma::distr_param( shape(j), 1. / h_rate(j) ) );
         } else {
-            h_(j) = 0; // because R::rgamma( 0, 1./h_rate(j) ) = 0
+            h_(j) = 0; // since R::rgamma( 0, 1./h_rate(j) ) = 0
         }
     }
     
@@ -447,7 +446,6 @@ Rcpp::List drive( const std::string& dataFile, const int p, const int q, const s
     unsigned int J = s.n_elem;
     arma::uvec groupNo = arma::unique( groupInd );
     unsigned int K = groupNo.n_elem;
-    arma::uvec m_k = arma::zeros<arma::uvec>( K );
     
     ind_r_d = ind_r = ind_d = arma::zeros<arma::mat>( chainData.survData.data->n_rows, J );
     d = arma::sum( ind_d.t(), 1 );
@@ -467,12 +465,10 @@ Rcpp::List drive( const std::string& dataFile, const int p, const int q, const s
     
   // tausq: only for genomic variables
     arma::vec tauSq_exp = arma::zeros<arma::vec>( p );
-    arma::uvec groupNoLocation;
     for( unsigned int i=0; i<K; i++ )
     {
-        groupNoLocation = arma::find( groupInd == groupNo(i) );
-        m_k(i) = groupNoLocation.n_elem;
-        tauSq_exp.elem( groupNoLocation ).fill( tauSq(i) );
+       // groupNoLocation = arma::find( groupInd == groupNo(i) );
+        tauSq_exp.elem( arma::find( groupInd == groupNo(i) ) ).fill( tauSq(i) );
     }
    
     double beta_prop_sd = sqrt(chainData.beta_prop_var);
@@ -537,14 +533,14 @@ Rcpp::List drive( const std::string& dataFile, const int p, const int q, const s
         if( rw )
         {
             updateRP_genomic_rw_cpp( p, x, ind_r, ind_d, ind_r_d, J, beta_prop_me, beta_prop_sd, xbeta, be, h, sd_be, sampleRPg_accept );
-        }
-        else
-        {
+        } else {
             updateRP_genomic_cpp( p, x, ind_r, ind_d, ind_r_d, J, xbeta, be, h, sd_be, sampleRPg_accept );
         }
         
         for( unsigned int i=0; i<K; i++ )
+        {
             be_normSq(i) = arma::accu( be.elem( arma::find(groupInd == groupNo(i)) ) % be.elem( arma::find(groupInd == groupNo(i)) ) );
+        }
         
         h = updateBH_cpp( ind_r_d, hPriorSh, d, c0, J, xbeta );
             

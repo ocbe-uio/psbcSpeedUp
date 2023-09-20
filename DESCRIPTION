@@ -4,8 +4,8 @@ Version: 2.0.1
 Date: 2023-09-18
 URL: https://github.com/ocbe-uio/psbcSpeedUp
 BugReports: https://github.com/ocbe-uio/psbcSpeedUp/issues
-Authors@R: c(person("Manuela", "Zucknick", role=c("aut")),
-             person("Zhi", "Zhao", role=c("aut","cre"), email = "zhi.zhao@medisin.uio.no"), 
+Authors@R: c(person("Zhi", "Zhao", role=c("aut","cre"), email = "zhi.zhao@medisin.uio.no"), 
+             person("Manuela", "Zucknick", role=c("aut")),
              person("Maral", "Saadati", role=c("aut")),
              person("Axel", "Benner", role=c("aut")))
 Description: Algorithms to speed up the Bayesian Lasso Cox model (Lee et al., Int J Biostat, 2011 <doi:10.2202/1557-4679.1301>) and the Bayesian Lasso Cox with mandatory variables (Zucknick et al. Biometrical J, 2015 <doi:10.1002/bimj.201400160>).
@@ -18,9 +18,9 @@ LinkingTo: Rcpp, RcppArmadillo (>= 0.9.000)
 Imports: Rcpp, xml2, ggplot2, GGally, utils, stats
 LazyData: true
 NeedsCompilation: yes
-Packaged: 2023-09-20 08:18:18 UTC; zhiz
-Author: Manuela Zucknick [aut],
-  Zhi Zhao [aut, cre],
+Packaged: 2023-09-20 09:28:37 UTC; zhiz
+Author: Zhi Zhao [aut, cre],
+  Manuela Zucknick [aut],
   Maral Saadati [aut],
   Axel Benner [aut]
 Maintainer: Zhi Zhao <zhi.zhao@medisin.uio.no>
