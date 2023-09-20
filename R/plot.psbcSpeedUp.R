@@ -9,7 +9,7 @@
 #' @importFrom stats quantile
 #' 
 #' @param x an object of class \code{psbcSpeedUp} or a matrix. If \code{x} 
-#' is a matrix, use \code{plot.psbcSpeedUp(x)}
+#' is a matrix, use \code{psbcSpeedUp:::plot.psbcSpeedUp(x)}
 #' @param type type of point estimates of regression coefficients. One of 
 #' \code{c("mean", "median")}. Default is \code{mean}
 #' @param interval logical argument to show 95\% credible intervals. Default 

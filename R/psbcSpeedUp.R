@@ -156,12 +156,12 @@ psbcSpeedUp <- function(survObj = NULL, p = 1, q = 0, hyperpar = list(),
   if(!is.list(hyperpar))
     stop("Argument 'hyperpar' must be a list!")
   if(any(! names(hyperpar) %in%  
-          c('beta.ini', 'lambdaSq', 'sigmaSq', 'tauSq', 'h', 'groupInd', 
-            'eta0', 'kappa0', 'c0', 'r', 'delta', 
+          c('beta.ini', 'lambdaSq', 'sigmaSq', 'rate', 'tauSq', 
+            'h', 'groupInd', 'eta0', 'kappa0', 'c0', 'r', 'delta', 
             'beta.prop.var', 'beta.clin.var')))
     stop("Hyperparameters must be among c('beta.ini', 'lambdaSq', 'sigmaSq', 
-         'tauSq', 'h', 'groupInd', 'eta0', 'kappa0', 'c0', 'r', 'delta', 
-         'beta.prop.var', 'beta.clin.var')!")
+         'rate', 'tauSq', 'h', 'groupInd', 'eta0', 'kappa0', 'c0', 'r', 
+         'delta', 'beta.prop.var', 'beta.clin.var')!")
   if("beta.ini" %in% names(hyperpar)){
     ini_beta <- hyperpar$beta.ini
   } else {
@@ -172,6 +172,9 @@ psbcSpeedUp <- function(survObj = NULL, p = 1, q = 0, hyperpar = list(),
   }
   if(! "sigmaSq" %in% names(hyperpar)){
     hyperpar$sigmaSq <- runif(1, 0.1, 10)
+  }
+  if(! "rate" %in% names(hyperpar)){
+    hyperpar$rate <- hyperpar$lambdaSq / 2
   }
   if("tauSq" %in% names(hyperpar)){
     ini_tauSq <- hyperpar$tauSq

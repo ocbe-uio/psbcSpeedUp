@@ -91,8 +91,14 @@ arma::vec updateBH_cpp( arma::mat& ind_r_d_, arma::vec hPriorSh_, arma::vec& d_,
     arma::vec h_ = arma::zeros<arma::vec>( J_ );
     for( unsigned int j=0; j<J_; j++ )
     {
-        //h_(j) = R::rgamma( shape(j), 1. / h_rate(j) );
-        h_(j) = arma::randg( arma::distr_param( shape(j), 1. / h_rate(j) ) );
+        h_(j) = R::rgamma( shape(j), 1. / h_rate(j) );
+        if( shape(j) != 0. )
+        {
+            //h_(j) = R::rgamma( shape(j), 1. / h_rate(j) );
+            h_(j) = arma::randg( arma::distr_param( shape(j), 1. / h_rate(j) ) );
+        } else {
+            h_(j) = 0; // because R::rgamma( 0, 1./h_rate(j) ) = 0
+        }
     }
     
     return h_;
@@ -127,7 +133,6 @@ arma::vec rinvgauss( arma::vec a, double b )
 arma::vec updateTau_GL_cpp( double lambdaSq_, double sigmaSq_, arma::vec be_normSq_ )
 {
     arma::vec nu = arma::ones<arma::vec>( be_normSq_.n_elem );
-    //Rcout << "updateTau_GL_cpp -- lambdaSq=" << lambdaSq_ << "sigmaSq=" << sigmaSq_ << "\n";
     if( arma::any( be_normSq_ != 0 ) )
     {
         nu = sqrt( lambdaSq_ * sigmaSq_ / be_normSq_ );
@@ -148,6 +153,7 @@ arma::vec updateTau_GL_cpp( double lambdaSq_, double sigmaSq_, arma::vec be_norm
 double updateSigma_GL_cpp( int p, arma::vec be_normSq_, arma::vec tauSq_ )
 {
     double rate_sig = 0.5 * arma::accu( be_normSq_ / tauSq_ );
+    //if( rate_sig == 0. ) rate_sig = 0.0001;
     //double sigmaSq = 1. / R::rgamma( p / 2., 1. / rate_sig );
     double sigmaSq = 1. / arma::randg( arma::distr_param( p / 2., 1. / rate_sig ) );
     
@@ -159,10 +165,9 @@ double updateLambda_GL_cpp( int p, unsigned int K, double r, double delta, arma:
 {
     double sumTauSq = arma::accu( tauSq_ );
     double shape = (p + K) / 2. + r;
-    double rate = sumTauSq / 2. + delta;
-    //Rcout << "updateLambda_GL_cpp -- tauSq_" << tauSq_ << "; delta=" << delta << "; shape=" << shape << "; rate=" << rate << "\n";
+    double rate_lam = sumTauSq / 2. + delta;
     //double lambdaSq = R::rgamma( shape, 1. / rate );
-    double lambdaSq = arma::randg( arma::distr_param( shape, 1. / rate ) );
+    double lambdaSq = arma::randg( arma::distr_param( shape, 1. / rate_lam ) );
     
     return lambdaSq;
 }
@@ -409,13 +414,7 @@ Rcpp::List drive( const std::string& dataFile, const int p, const int q, const s
     // set random seed
     #ifdef _OPENMP
         omp_init_lock(&RNGlock);  // init RNG lock for the parallel part
-    // std::atomic<std::size_t> counter(0);
-    // #pragma omp parallel
-    //    {
-    //    arma::arma_rng::set_seed(123 + counter++);
-    //    }
-    // #else
-    //    arma::arma_rng::set_seed(123);
+        //arma::arma_rng::set_seed(123);
     #endif
     
     // ###########################################################
@@ -496,13 +495,9 @@ Rcpp::List drive( const std::string& dataFile, const int p, const int q, const s
         be_normSq(0) = 0.1;
     }
     
-    arma::vec H_star = arma::zeros<arma::vec>( J );
     arma::vec alpha0 = arma::zeros<arma::vec>( 1 + J );
-    for( unsigned int j = 0; j<J; j++ )
-    {
-      H_star(j) = eta0 * std::pow( s(j), kappa0 );
-      alpha0(1+j) = c0 * H_star( j );
-    }
+    //H_star(j) = eta0 * arma::pow( s, kappa0 );
+    alpha0.subvec( 1, J ) = c0 * eta0 * arma::pow( s, kappa0 );
     arma::vec hPriorSh = arma::diff( alpha0 );
     
     // save mcmc intermediate estimates
