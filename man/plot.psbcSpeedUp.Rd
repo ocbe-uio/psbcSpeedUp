@@ -7,13 +7,13 @@
 \method{plot}{psbcSpeedUp}(x, type = "mean", interval = TRUE, ...)
 }
 \arguments{
-\item{x}{an object of class \code{psbcSpeedUp} or a matrix. If \code{x} 
+\item{x}{an object of class \code{psbcSpeedUp} or a matrix. If \code{x}
 is a matrix, use \code{psbcSpeedUp:::plot.psbcSpeedUp(x)}}
 
-\item{type}{type of point estimates of regression coefficients. One of 
+\item{type}{type of point estimates of regression coefficients. One of
 \code{c("mean", "median")}. Default is \code{mean}}
 
-\item{interval}{logical argument to show 95\% credible intervals. Default 
+\item{interval}{logical argument to show 95\% credible intervals. Default
 is \code{TRUE}}
 
 \item{...}{additional arguments sent to \code{ggplot2::geom_point()}}
@@ -33,15 +33,18 @@ q <- exampleData$q
 survObj <- exampleData[1:3]
 
 # Set hyperparameters
-mypriorPara <- list('groupInd'=1:p, 'beta.ini'= rep(0,p+q), 'kappa0'=1, 'c0'=2, 
-                    'r'=10/9, 'delta'=1e-05, 'lambdaSq'=1, 'sigmaSq'= runif(1, 0.1, 10), 
-                    'beta.prop.var'=1, 'beta.clin.var'=1)
+mypriorPara <- list(
+  "groupInd" = 1:p, "beta.ini" = rep(0, p + q), "eta0" = 0.02,  
+  "kappa0" = 1, "c0" = 2, "r" = 10 / 9, "delta" = 1e-05, "lambdaSq" = 1, 
+  "sigmaSq" = runif(1, 0.1, 10), "beta.prop.var" = 1, "beta.clin.var" = 1)
 
 # run Bayesian Lasso Cox
 library(psbcSpeedUp)
 set.seed(123)
-fitBayesCox =  psbcSpeedUp(survObj, p=p, q=q, hyperpar=mypriorPara, 
-nIter=10, burnin=0, outFilePath=tempdir())
-plot(fitBayesCox, color="blue")
+fitBayesCox <- psbcSpeedUp(survObj,
+  p = p, q = q, hyperpar = mypriorPara,
+  nIter = 10, burnin = 0, outFilePath = tempdir()
+)
+plot(fitBayesCox, color = "blue")
 
 }

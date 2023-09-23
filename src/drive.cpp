@@ -96,6 +96,7 @@ arma::vec updateBH_cpp( arma::mat& ind_r_d_, arma::vec hPriorSh_, arma::vec& d_,
             //h_(j) = R::rgamma( shape(j), 1. / h_rate(j) );
             h_(j) = arma::randg( arma::distr_param( shape(j), 1. / h_rate(j) ) );
         } else {
+            Rcout << "The shape parameter of gamma distribution in 'updateBH' is 0!\n";
             h_(j) = 0; // since R::rgamma( 0, 1./h_rate(j) ) = 0
         }
     }
@@ -442,7 +443,7 @@ Rcpp::List drive( const std::string& dataFile, const int p, const int q, const s
     arma::vec dataDi = chainData.survData.data->col( 1 );
     arma::vec s0 = {0.}; //event times that are actually observed
     s0(0) = 2. * max( dataTime ) - max( dataTime.elem( arma::find(dataTime != max(dataTime)) ) );
-    arma::vec s = arma::join_cols( arma::sort( dataTime.elem( arma::find(dataDi==1.) ) ), s0 );
+    arma::vec s = arma::join_cols( arma::sort( arma::unique( dataTime.elem( arma::find(dataDi==1.) ) ) ), s0 );
     unsigned int J = s.n_elem;
     arma::uvec groupNo = arma::unique( groupInd );
     unsigned int K = groupNo.n_elem;

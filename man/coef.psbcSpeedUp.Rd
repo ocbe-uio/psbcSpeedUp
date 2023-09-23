@@ -9,14 +9,14 @@
 \arguments{
 \item{object}{an object of class \code{psbcSpeedUp}}
 
-\item{type}{type of point estimates of regressions. One of 
+\item{type}{type of point estimates of regressions. One of
 \code{c("mean", "median")}. Default is \code{mean}}
 
 \item{...}{not used}
 }
 \value{
-Estimated coefficients are from an object of class \code{psbcSpeedUp}. 
-If the \code{psbcSpeedUp} specified data standardization, the fitted values 
+Estimated coefficients are from an object of class \code{psbcSpeedUp}.
+If the \code{psbcSpeedUp} specified data standardization, the fitted values
 are base based on standardized data.
 }
 \description{
@@ -31,15 +31,18 @@ q <- exampleData$q
 survObj <- exampleData[1:3]
 
 # Set hyperparameters
-mypriorPara <- list('groupInd'=1:p, 'beta.ini'= rep(0,p+q), 'kappa0'=1, 'c0'=2, 
-                    'r'=10/9, 'delta'=1e-05, 'lambdaSq'=1, 'sigmaSq'= runif(1, 0.1, 10), 
-                    'beta.prop.var'=1, 'beta.clin.var'=1)
+mypriorPara <- list(
+  "groupInd" = 1:p, "beta.ini" = rep(0, p + q), "eta0" = 0.02,  
+  "kappa0" = 1, "c0" = 2, "r" = 10 / 9, "delta" = 1e-05, "lambdaSq" = 1, 
+  "sigmaSq" = runif(1, 0.1, 10), "beta.prop.var" = 1, "beta.clin.var" = 1)
 
 # run Bayesian Lasso Cox
 library(psbcSpeedUp)
 set.seed(123)
-fitBayesCox =  psbcSpeedUp(survObj, p=p, q=q, hyperpar=mypriorPara, 
-nIter=10, burnin=0, outFilePath=tempdir())
+fitBayesCox <- psbcSpeedUp(survObj,
+  p = p, q = q, hyperpar = mypriorPara,
+  nIter = 10, burnin = 0, outFilePath = tempdir()
+)
 coef(fitBayesCox)
 
 }

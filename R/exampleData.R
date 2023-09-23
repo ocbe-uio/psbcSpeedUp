@@ -1,11 +1,11 @@
 #' @title Simulated data set
 #'
 #' @description
-#' Simulated data set for a quick test. The data set is a list with six 
+#' Simulated data set for a quick test. The data set is a list with six
 #' components: survival times \code{"t"}, event status \code{"di"}, covariates
-#' \code{"x"}, number of genomics variables \code{"p"}, number of clinical 
-#' variables \code{"1"} and true effects of covariates \code{"beta_true"}. 
-#' The R code for generating the simulated data is given in the Examples 
+#' \code{"x"}, number of genomics variables \code{"p"}, number of clinical
+#' variables \code{"1"} and true effects of covariates \code{"beta_true"}.
+#' The R code for generating the simulated data is given in the Examples
 #' paragraph.
 #'
 #'
@@ -14,32 +14,31 @@
 #' data("exampleData", package = "psbcSpeedUp")
 #' str(exampleData)
 #'
-#'
 #' \dontrun{
 #' # ===============
-#' # The code below is to show how to generate the dataset "exampleData.rda" above
+#' # The code below is to show how to generate the dataset "exampleData.rda"
 #' # ===============
 #'
 #' requireNamespace("MASS", quietly = TRUE)
 #' requireNamespace("survival", quietly = TRUE)
 #' requireNamespace("mvtnorm", quietly = TRUE)
-#' 
+#'
 #' ########################### Predefined Functions
-#' 
-#' Expo <- function (times, surv) {
+#'
+#' Expo <- function(times, surv) {
 #'   z1 <- -log(surv[1])
 #'   t1 <- times[1]
-#'   lambda <- z1/(t1)
+#'   lambda <- z1 / (t1)
 #'   list(rate = lambda)
 #' }
 #'
-#' Weibull <- function (times, surv) {
+#' Weibull <- function(times, surv) {
 #'   z1 <- -log(surv[1])
 #'   z2 <- -log(surv[2])
 #'   t1 <- times[1]
 #'   t2 <- times[2]
-#'   gamma <- log(z2/z1)/log(t2/t1)
-#'   lambda <- z1/(t1^gamma)
+#'   gamma <- log(z2 / z1) / log(t2 / t1)
+#'   lambda <- z1 / (t1^gamma)
 #'   list(scale = lambda, shape = gamma)
 #' }
 #'
@@ -52,27 +51,27 @@
 #' ############################ Simulate a set of n x p covariates
 #'
 #' # effects
-#' bg <- c(0.75, -0.75, 0.5, -0.5, 0.25, -0.25, rep(0, p-6))
+#' bg <- c(0.75, -0.75, 0.5, -0.5, 0.25, -0.25, rep(0, p - 6))
 #' bc <- c(-1.0, 1.0, 0.3, 0, -0.3)
 #' bX <- c(bg, bc)
-#' 
+#'
 #' # covariates
 #' # genomic
 #' means <- rep(0, p)
 #' Sigma <- diag(1, p)
 #' Xg <- mvrnorm(n, means, Sigma)
 #' # clinical
-#' x1 <- rbinom(n=n,size=1, prob=0.7)
-#' x2 <- rbinom(n=n,size=1, prob=0.3)
-#' x3 <- rnorm(n=n, mean=0, sd=1)
-#' x4 <- rnorm(n=n, mean=0, sd=1)
-#' x5 <- rnorm(n=n, mean=0, sd=1)
-#' Xc <- cbind(x1,x2,x3,x4,x5)
+#' x1 <- rbinom(n = n, size = 1, prob = 0.7)
+#' x2 <- rbinom(n = n, size = 1, prob = 0.3)
+#' x3 <- rnorm(n = n, mean = 0, sd = 1)
+#' x4 <- rnorm(n = n, mean = 0, sd = 1)
+#' x5 <- rnorm(n = n, mean = 0, sd = 1)
+#' Xc <- cbind(x1, x2, x3, x4, x5)
 #' # all
 #' X <- data.frame(Xg, Xc)
-#' names(X) <- c(paste("G",1:p, sep=""), paste("C",1:q, sep=""))
+#' names(X) <- c(paste("G", 1:p, sep = ""), paste("C", 1:q, sep = ""))
 #' X <- scale(X)
-#' 
+#'
 #' # censoring function
 #' # - follow-up time 36 to 72 months
 #' # - administrative censoring: uniform data entry (cens1)
@@ -80,24 +79,23 @@
 #' ACT <- 36
 #' FUT <- 72
 #' cens.start <- FUT
-#' cens.end <- ACT+FUT
+#' cens.end <- ACT + FUT
 #' cens1 <- runif(n, cens.start, cens.end)
-#' loss <- Expo(times=72, surv=0.8)
-#' cens2 <- rexp(n, rate=loss$rate)
+#' loss <- Expo(times = 72, surv = 0.8)
+#' cens2 <- rexp(n, rate = loss$rate)
 #' cens <- pmin(cens1, cens2)
-#' 
+#'
 #' # survival distribution (Weibull, survival probs 0.5 and 0.9 at 12 and 36 months)
-#' h0 <- round(log(2)/36, 2)
-#' surv <- Weibull(times=c(12,36), surv=c(0.9,0.5))
-#' 
-#' dt <- (-log(runif(n)) * (1/surv$scale) * exp(-as.matrix(X) %*% bX))^(1/surv$shape)
-#' 
+#' h0 <- round(log(2) / 36, 2)
+#' surv <- Weibull(times = c(12, 36), surv = c(0.9, 0.5))
+#'
+#' dt <- (-log(runif(n)) * (1 / surv$scale) * exp(-as.matrix(X) %*% bX))^(1 / surv$shape)
+#'
 #' # survival object
 #' status <- ifelse(dt <= cens, 1, 0)
 #' os <- pmin(dt, cens)
 #'
-#' exampleData <- list('t'= os, 'di'= status, 'x'=X, 'beta_true'=bX)
-#'
-#'}
+#' exampleData <- list("t" = os, "di" = status, "x" = X, "beta_true" = bX)
+#' }
 #'
 "exampleData"

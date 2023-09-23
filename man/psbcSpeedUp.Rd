@@ -28,13 +28,13 @@ psbcSpeedUp(
 \item{q}{number of mandatory covariates}
 
 \item{hyperpar}{The list containing prior parameter values; among
-\code{c('groupInd', 'beta.ini', 'eta0', 'kappa0', 'c0', 'r', 'delta', 
-'lambdaSq', 'sigmaSq', 'tauSq', 'h', 'beta.prop.var', 'beta.clin.var')}. 
-See details for more information}
+\code{c('groupInd', 'beta.ini', 'eta0', 'kappa0', 'c0', 'r', 'delta',
+'lambdaSq', 'sigmaSq', 'tauSq', 's', 'h', 'beta.prop.var',
+'beta.clin.var')}. See details for more information}
 
 \item{nIter}{the number of iterations of the chain}
 
-\item{burnin}{number of iterations to discard at the start of the chain. 
+\item{burnin}{number of iterations to discard at the start of the chain.
 Default is 0}
 
 \item{thin}{thinning MCMC intermediate results to be stored}
@@ -46,12 +46,12 @@ Lee et al. (2011)}
 
 \item{outFilePath}{path to where the output files are to be written}
 
-\item{tmpFolder}{the path to a temporary folder where intermediate data 
-files are stored (will be erased at the end of the chain). It is specified 
+\item{tmpFolder}{the path to a temporary folder where intermediate data
+files are stored (will be erased at the end of the chain). It is specified
 relative to \code{outFilePath}}
 }
 \value{
-An object of class \code{psbcSpeedUp} is saved as 
+An object of class \code{psbcSpeedUp} is saved as
 \code{obj_psbcSpeedUp.rda} in the output file, including the following components:
 \itemize{
 \item input - a list of all input parameters by the user
@@ -64,6 +64,7 @@ An object of class \code{psbcSpeedUp} is saved as
 \item "\code{lambdaSq.p}" - a vector MCMC intermediate estimates of the hyperparameter "lambdaSq".
 \item "\code{accept.rate}" - a vector acceptance rates of individual regression coefficients.
 }
+\item call - the matched call.
 }
 }
 \description{
@@ -87,6 +88,7 @@ psbcSpeedUp
 \code{lambdaSq} \tab the starting value for \eqn{\lambda^2}\cr
 \code{sigmaSq} \tab the starting value for \eqn{\sigma^2}\cr
 \code{tauSq} \tab the starting values for \eqn{\tau^2}\cr
+\code{s} \tab the set of time partitions for specification of the cumulative baseline hazard function\cr
 \code{h} \tab the starting values for \eqn{h}\cr
 \code{beta.prop.var} \tab the variance of the proposal density for \eqn{\beta} in a random walk M-H sampler\cr
 \code{beta.clin.var} \tab the starting value for the variance of \eqn{\beta}\cr
@@ -101,16 +103,19 @@ q <- exampleData$q
 survObj <- exampleData[1:3]
 
 # Set hyperparameters
-mypriorPara <- list('groupInd'=1:p, 'beta.ini'= rep(0,p+q), 'kappa0'=1, 'c0'=2, 
-                    'r'=10/9, 'delta'=1e-05, 'lambdaSq'=1, 'sigmaSq'= runif(1, 0.1, 10), 
-                    'beta.prop.var'=1, 'beta.clin.var'=1)
+mypriorPara <- list(
+  "groupInd" = 1:p, "beta.ini" = rep(0, p + q), "eta0" = 0.02,  
+  "kappa0" = 1, "c0" = 2, "r" = 10 / 9, "delta" = 1e-05, "lambdaSq" = 1, 
+  "sigmaSq" = runif(1, 0.1, 10), "beta.prop.var" = 1, "beta.clin.var" = 1)
 
 # run Bayesian Lasso Cox
 library(psbcSpeedUp)
 set.seed(123)
-fitBayesCox <- psbcSpeedUp(survObj, p=p, q=q, hyperpar=mypriorPara, 
-nIter=10, burnin=0, outFilePath=tempdir())
-plot(fitBayesCox, color="blue")
+fitBayesCox <- psbcSpeedUp(survObj,
+  p = p, q = q, hyperpar = mypriorPara,
+  nIter = 10, burnin = 0, outFilePath = tempdir()
+)
+plot(fitBayesCox, color = "blue")
 
 }
 \references{
