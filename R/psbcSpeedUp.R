@@ -209,7 +209,7 @@ psbcSpeedUp <- function(survObj = NULL, p = 0, q = 0, hyperpar = list(),
   if ("tauSq" %in% names(hyperpar)) {
     ini_tauSq <- hyperpar$tauSq
   } else {
-    ini_tauSq <- rexp(length(unique(hyperpar$groupInd))) # , rate = hyperpar$lambdaSq/2)
+    ini_tauSq <- rexp(length(unique(groupInd))) # , rate = hyperpar$lambdaSq/2)
   }
   s0 <- survObj$t[survObj$di == 1]
   if ("s" %in% names(hyperpar)) {
