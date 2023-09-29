@@ -93,63 +93,6 @@ namespace Utils{
 
 	}
 
-//    void readInitialPar(const std::string& intialParFile, Initial_Data& iniData )
-//    {
-//        pugi::xml_document doc;
-//        pugi::xml_parse_result result = doc.load_file( intialParFile.c_str() );
-//
-//        if ( result )
-//        {
-//            // We'll use Xpaths to get variables
-//            // the results of empty queries will be a nan after the evaluate_number() and thus we'll preserve NANs for non specified parameters
-//
-//            pugi::xpath_query query_lambdaSq("/initialparameters/lambdaSq");
-//            pugi::xpath_query query_rate("/initialparameters/rate");
-//            pugi::xpath_query query_beta_ini("/initialparameters/beta_ini");
-//            pugi::xpath_query query_sigmaSq("/initialparameters/sigmaSq");
-//            pugi::xpath_query query_tauSq("/initialparameters/tauSq");
-//            pugi::xpath_query query_h("/initialparameters/h");
-//
-//            // get results
-//            chainData.lambdaSq = query_lambdaSq.evaluate_number(doc);
-//            chainData.rate = query_rate.evaluate_number(doc);
-//            chainData.beta_ini = query_beta_ini.evaluate_number(doc);
-//            chainData.sigmaSq = query_sigmaSq.evaluate_number(doc);
-//            chainData.tauSq = query_tauSq.evaluate_number(doc);
-//            chainData.h = query_h.evaluate_number(doc);
-//
-//
-//            std::vector<std::string> valid_top_level = {"initialparameters"}; // ,"model","chain"}; ?
-//            std::vector<std::string> valid_hyperpar = {"lambdaSq","rate","beta_ini","sigmaSq","tauSq","h"};
-//
-//            for (pugi::xml_node node = doc.first_child(); node; node = node.next_sibling())
-//            {
-//                if ( std::find(valid_top_level.begin(), valid_top_level.end(), node.name() ) == valid_top_level.end() )
-//
-//                Rcout << "\n\n\tWarning: " << node.name() << " not recognised as a valid top level node - only 'initialparameters' is valid" << '\n'; // ,model and chain
-//            }
-//
-//            for (pugi::xml_node node = doc.child("initialparameters").first_child(); node; node = node.next_sibling())
-//            {
-//                if ( std::find(valid_hyperpar.begin(), valid_hyperpar.end(), node.name() ) == valid_hyperpar.end() )
-//                {
-//                    Rcout << "\n\n\tWARNING: " << node.name() << " was not recognised as a valid initialparameters" << '\n';
-//                    Rcout << "\t"<<node.name() << ": " << node.child_value() << " disregarded .. " << '\n';
-//                    Rcout << "\tValid initialparameters are: \n\t";
-//                    for( auto& v : valid_hyperpar )
-//                        Rcout << v << ", ";
-//                    Rcout << " --- see the documentation for more details " << '\n' << '\n';
-//
-//                }
-//            }
-//
-//        }
-//        else{
-//            Rcout << '\n' << "No initialparameters input file was given (or wrong format detected), so default values will be used." << '\n';
-//        }
-//
-//    }
-
 	// sgn is defined in the header in order for it to be visible
 
 	double logspace_add(const arma::vec& logv)

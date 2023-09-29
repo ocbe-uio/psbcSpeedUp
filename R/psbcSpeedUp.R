@@ -89,9 +89,9 @@
 #'
 #' # Set hyperparameters
 #' mypriorPara <- list(
-#'   "groupInd" = 1:p, "beta.ini" = rep(0, p + q), "eta0" = 0.02,  
-#'   "kappa0" = 1, "c0" = 2, "r" = 10 / 9, "delta" = 1e-05, "lambdaSq" = 1, 
-#'   "sigmaSq" = runif(1, 0.1, 10), "beta.prop.var" = 1, "beta.clin.var" = 1)
+#'   "groupInd" = 1:p, "eta0" = 0.02, "kappa0" = 1, "c0" = 2, "r" = 10 / 9, 
+#'   "delta" = 1e-05, "lambdaSq" = 1, "sigmaSq" = runif(1, 0.1, 10), 
+#'   "beta.prop.var" = 1, "beta.clin.var" = 1)
 #'
 #' # run Bayesian Lasso Cox
 #' library(psbcSpeedUp)
@@ -103,7 +103,7 @@
 #' plot(fitBayesCox, color = "blue")
 #'
 #' @export
-psbcSpeedUp <- function(survObj = NULL, p = 1, q = 0, hyperpar = list(),
+psbcSpeedUp <- function(survObj = NULL, p = 0, q = 0, hyperpar = list(),
                         nIter = 1, burnin = 0, thin = 1, rw = FALSE,
                         outFilePath, tmpFolder = "tmp/") {
   # Check the survival input object
@@ -121,14 +121,18 @@ psbcSpeedUp <- function(survObj = NULL, p = 1, q = 0, hyperpar = list(),
     stop("Data 'survObj$x' must be a dataframe or a matrix!")
   }
 
-  if (p %% 1 != 0 | p < 1) {
-    stop("Argument 'p' must be a positive integer!")
-  }
-  if (q %% 1 != 0 | q < 0) {
-    stop("Argument 'q' must be a positive integer!")
-  }
-  if (p + q != ncol(survObj$x)) {
-    stop("The sum of 'p' and 'q' must equal the number of columns of 'survObj$x'!")
+  if (p + q == 0) {
+    p <- ncol(survObj$x)
+  } else {
+    if (p %% 1 != 0 | p < 1) {
+      stop("Argument 'p' must be a positive integer!")
+    }
+    if (q %% 1 != 0 | q < 0) {
+      stop("Argument 'q' must be a positive integer!")
+    }
+    if (p + q != ncol(survObj$x)) {
+      stop("The sum of 'p' and 'q' must equal the number of columns of 'survObj$x'!")
+    }
   }
   if (thin %% 1 != 0 | thin < 1) {
     stop("Argument 'thin' must be a positive integer!")
@@ -181,6 +185,13 @@ psbcSpeedUp <- function(survObj = NULL, p = 1, q = 0, hyperpar = list(),
          'rate', 'tauSq', 'h', 'groupInd', 'eta0', 'kappa0', 'c0', 'r',
          'delta', 'beta.prop.var', 'beta.clin.var')!")
   }
+  if ("groupInd" %in% names(hyperpar)) {
+    if (length(hyperpar$groupInd) != p)
+      stop("Please specify correct hyperpar$groupInd!")
+    groupInd <- hyperpar$groupInd
+  } else {
+    groupInd <- 1:p
+  }
   if ("beta.ini" %in% names(hyperpar)) {
     ini_beta <- hyperpar$beta.ini
   } else {
@@ -219,11 +230,6 @@ psbcSpeedUp <- function(survObj = NULL, p = 1, q = 0, hyperpar = list(),
     ini_h <- hyperpar$h
   } else {
     ini_h <- rgamma(length(s), 1, 1)
-  }
-  if ("groupInd" %in% names(hyperpar)) {
-    groupInd <- hyperpar$groupInd
-  } else {
-    groupInd <- 1:p
   }
   if (!"eta0" %in% names(hyperpar)) {
     hyperpar$eta0 <- round(log(2) / 36, 2)

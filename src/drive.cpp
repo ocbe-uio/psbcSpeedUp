@@ -90,16 +90,14 @@ arma::vec updateBH_cpp( arma::mat& ind_r_d_, arma::vec hPriorSh_, arma::vec& d_,
  
     arma::vec h_ = arma::zeros<arma::vec>( J_ );
     for( unsigned int j=0; j<J_; j++ )
-    {
-        if( shape(j) != 0. )
-        {
-            //h_(j) = R::rgamma( shape(j), 1. / h_rate(j) );
-            h_(j) = arma::randg( arma::distr_param( shape(j), 1. / h_rate(j) ) );
-        } else {
-            Rcout << "The shape parameter of gamma distribution in 'updateBH' is 0!\n";
-            h_(j) = 0; // since R::rgamma( 0, 1./h_rate(j) ) = 0
-        }
-    }
+        h_(j) = arma::randg( arma::distr_param( shape(j), 1. / h_rate(j) ) );
+//        if( shape(j) != 0. )
+//        {
+//            //h_(j) = R::rgamma( shape(j), 1. / h_rate(j) );
+//            h_(j) = arma::randg( arma::distr_param( shape(j), 1. / h_rate(j) ) );
+//        } else {
+//            h_(j) = 0; // since R::rgamma( 0, 1./h_rate(j) ) = 0
+//        }
     
     return h_;
 }
@@ -335,7 +333,6 @@ void updateRP_genomic_cpp( int p, const arma::mat x_, arma::mat& ind_r_, arma::m
             xbeta_ = xbeta_prop;
             sampleRPg_accept_( j ) = sampleRPg_accept_( j ) + 1;
         }
-        //if(j==0) Rcout << "D2=" << D2 << ", D2_prop=" << D2_prop << ", beta_prop(0)=" << be_prop(j) << ", beta(0)=" << be_(j) << "\n";
     }
 }
 
@@ -483,14 +480,10 @@ Rcpp::List drive( const std::string& dataFile, const int p, const int q, const s
     
     arma::vec be_normSq = arma::zeros<arma::vec>( K );
     for( unsigned int i=0; i<K; i++ )
-    {
         be_normSq(i) = arma::accu( ini_beta.elem( arma::find(groupInd == groupNo(i)) ) % ini_beta.elem( arma::find(groupInd == groupNo(i)) ) );
-    }
     
     if( !any( be_normSq ) )
-    {
         be_normSq(0) = 0.1;
-    }
     
     arma::vec alpha0 = arma::zeros<arma::vec>( 1 + J );
     //H_star(j) = eta0 * arma::pow( s, kappa0 );
@@ -529,7 +522,8 @@ Rcpp::List drive( const std::string& dataFile, const int p, const int q, const s
 
         //Updating regression coefficients and hyperparameters
         
-        updateRP_clinical_cpp( p, q, x, ind_r, ind_d, ind_r_d, J, beta_prop_me, beta_prop_sd, xbeta, be, h, sd_be, sampleRPc_accept );
+        if( q > 0 )
+            updateRP_clinical_cpp( p, q, x, ind_r, ind_d, ind_r_d, J, beta_prop_me, beta_prop_sd, xbeta, be, h, sd_be, sampleRPc_accept );
         
         if( rw )
         {
@@ -538,25 +532,32 @@ Rcpp::List drive( const std::string& dataFile, const int p, const int q, const s
             updateRP_genomic_cpp( p, x, ind_r, ind_d, ind_r_d, J, xbeta, be, h, sd_be, sampleRPg_accept );
         }
         
-        for( unsigned int i=0; i<K; i++ )
-        {
-            be_normSq(i) = arma::accu( be.elem( arma::find(groupInd == groupNo(i)) ) % be.elem( arma::find(groupInd == groupNo(i)) ) );
-        }
+//        if( q > 0 )
+//        {
+            for( unsigned int i=0; i<K; i++ )
+                be_normSq(i) = arma::accu( be.elem( arma::find(groupInd == groupNo(i)) ) % be.elem( arma::find(groupInd == groupNo(i)) ) );
+//        } else {
+//            be_normSq = be % be;
+//        }
         
         h = updateBH_cpp( ind_r_d, hPriorSh, d, c0, J, xbeta );
             
         tauSq = updateTau_GL_cpp( lambdaSq, sigmaSq, be_normSq );
-        
-        for( unsigned int i=0; i<K; i++ )
-        {
-            tauSq_exp.elem( arma::find(groupInd == groupNo(i)) ).fill( tauSq(i) );
-        }
 
         sigmaSq = updateSigma_GL_cpp( p, be_normSq, tauSq);
         lambdaSq = updateLambda_GL_cpp( p, K, r, delta, tauSq);
-
-        sd_bePart2.fill( beta_clin_sd );
-        sd_be = arma::join_cols( sqrt(sigmaSq * tauSq_exp), sd_bePart2 );
+        
+//        if( q > 0 )
+//        {
+            for( unsigned int i=0; i<K; i++ )
+                tauSq_exp.elem( arma::find(groupInd == groupNo(i)) ).fill( tauSq(i) );
+            
+            sd_bePart2.fill( beta_clin_sd );
+            sd_be = arma::join_cols( sqrt(sigmaSq * tauSq_exp), sd_bePart2 );
+//        } else {
+//            tauSq_exp = tauSq;
+//            sd_be = sqrt(sigmaSq * tauSq_exp);
+//        }
 
         // Save all results
         if( M % thin == 0 )

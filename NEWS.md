@@ -7,6 +7,10 @@
 * add R functions for survival predictions
 * extend C++ source code for implementing other shrinkage and group priors
 
+# psbcSpeedUp 2.0.3
+
+* Allowed variable selection for all covariates by default
+
 # psbcSpeedUp 2.0.2
 
 * Optimised the partition of the time axis for gamma process prior
