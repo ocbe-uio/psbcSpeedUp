@@ -1,5 +1,5 @@
-//#ifndef GLOBAL
-//#define GLOBAL
+#ifndef GLOBAL
+#define GLOBAL
 
   #include <random>
   #include <vector>
@@ -12,10 +12,10 @@
     #include <omp.h>
   #endif
 
-//  #ifndef CCODE
+  #ifndef CCODE
     #include <RcppArmadillo.h>
-//  #else
-//    #include <armadillo>
-//  #endif
+  #else
+    #include <armadillo>
+  #endif
 
-//#endif
+#endif

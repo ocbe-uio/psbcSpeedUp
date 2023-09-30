@@ -55,7 +55,7 @@ void settingInterval_cpp( const arma::vec y, const arma::vec delta_, const arma:
     case1ygeq = arma::find( delta_ == 1. && y > smax );
   
     int cen_j;
-    for( unsigned int i = 0; i < case1yleq.n_elem; i++ )
+    for( unsigned int i = 0; i < case1yleq.n_elem; ++i )
     {
         cen_j = min( arma::find( s_ >= y(case1yleq(i)) ) );
         ind_d_( case1yleq(i), cen_j ) = 1.;
@@ -63,7 +63,7 @@ void settingInterval_cpp( const arma::vec y, const arma::vec delta_, const arma:
         //Rcout << cen_j << ",";
     }
     
-    for( unsigned int i = 0; i < case0yleq.n_elem; i++ )
+    for( unsigned int i = 0; i < case0yleq.n_elem; ++i )
     {
         cen_j = min( arma::find( s_ >= y(case0yleq(i)) ) );
         ind_r_.submat( case0yleq(i), 0, case0yleq(i), cen_j ).fill( 1. );
@@ -89,7 +89,7 @@ arma::vec updateBH_cpp( arma::mat& ind_r_d_, arma::vec hPriorSh_, arma::vec& d_,
     arma::vec shape = hPriorSh_ + d_;
  
     arma::vec h_ = arma::zeros<arma::vec>( J_ );
-    for( unsigned int j=0; j<J_; j++ )
+    for( unsigned int j=0; j<J_; ++j )
         h_(j) = arma::randg( arma::distr_param( shape(j), 1. / h_rate(j) ) );
 //        if( shape(j) != 0. )
 //        {
@@ -171,7 +171,7 @@ double updateLambda_GL_cpp( int p, unsigned int K, double r, double delta, arma:
 }
 
 // update coefficients of clinical variables via a rw MH sampler
-void updateRP_clinical_cpp( int p, int q, const arma::mat x_, arma::mat& ind_r_, arma::mat& ind_d_, arma::mat& ind_r_d_, unsigned int J_, arma::vec beta_prop_me_, double beta_prop_sd, arma::mat& xbeta_, arma::vec& be_, arma::vec& h_, arma::vec sd_be_, arma::uvec& sampleRPc_accept_ )
+void updateRP_clinical_cpp( int p, int q, const arma::mat x_, arma::mat& ind_r_, arma::mat& ind_d_, arma::mat& ind_r_d_, unsigned int J_, arma::vec beta_prop_me_, double beta_prop_sd, arma::vec& xbeta_, arma::vec& be_, arma::vec& h_, arma::vec sd_be_, arma::uvec& sampleRPc_accept_ )
 {
     // select parameters to be updated; use p+j for clinical
     arma::uvec updatej = arma::randperm( q );
@@ -188,7 +188,7 @@ void updateRP_clinical_cpp( int p, int q, const arma::mat x_, arma::mat& ind_r_,
     double loglh_ini, loglh_prop, logprior_prop, logprior_ini, logprop_prop, logR, logprop_ini;
     
     int j = 0;
-    for( int j_id=0; j_id<q; j_id++ )
+    for( int j_id=0; j_id<q; ++j_id )
     {
         j = updatej(j_id);
         be_prop = be_;
@@ -236,13 +236,14 @@ void updateRP_clinical_cpp( int p, int q, const arma::mat x_, arma::mat& ind_r_,
 }
 
 // update coefficients of genomic variables via a MH sampler
-void updateRP_genomic_cpp( int p, const arma::mat x_, arma::mat& ind_r_, arma::mat& ind_d_, arma::mat& ind_r_d_, unsigned int J_, arma::mat& xbeta_, arma::vec& be_, arma::vec& h_, arma::vec sd_be_, arma::uvec& sampleRPg_accept_ )
+void updateRP_genomic_cpp( int p, const arma::mat x_, arma::mat& ind_r_, arma::mat& ind_d_, arma::mat& ind_r_d_, unsigned int J_, arma::vec& xbeta_, arma::vec& be_, arma::vec& h_, arma::vec sd_be_, arma::uvec& sampleRPg_accept_ )
 {
     arma::uvec updatej = arma::randperm(p);
     
     arma::vec be_prop = be_;
     arma::vec exp_xbeta = arma::exp( xbeta_ );
-    arma::mat h_exp_xbeta_mat, exp_h_exp_xbeta_mat, h_exp_xbeta_prop_mat, exp_h_exp_xbeta_prop_mat;
+    arma::mat h_exp_xbeta_mat, h_exp_xbeta_prop_mat;
+    arma::mat exp_h_exp_xbeta_mat, exp_h_exp_xbeta_prop_mat;
     arma::vec x_sq_exp_xbeta, first_sum, first_sum_prop, second_sum, second_sum_prop;
     arma::vec x_exp_xbeta, xbeta_prop, exp_xbeta_prop, x_exp_xbeta_prop, x_sq_exp_xbeta_prop;
     arma::vec D1_1st, D1_2nd, D1_1st_prop, D1_2nd_prop;
@@ -255,7 +256,7 @@ void updateRP_genomic_cpp( int p, const arma::mat x_, arma::mat& ind_r_, arma::m
     double be_prop_sd = 1.;
     double be_prop_me_ini, be_prop_sd_ini, D1, D2, D1_prop, D2_prop, loglh_ini, loglh_prop, logprior_prop, logprior_ini, logprop_prop, logprop_ini, logR;
     int j = 0;
-    for( int j_id=0; j_id<p; j_id++ )
+    for( int j_id=0; j_id<p; ++j_id )
     {
         j = updatej(j_id);
         xbeta_.elem( arma::find(xbeta_ > 700) ).fill(700.);
@@ -337,7 +338,7 @@ void updateRP_genomic_cpp( int p, const arma::mat x_, arma::mat& ind_r_, arma::m
 }
 
 // update coefficients of genomic variables via a rw MH sampler, almost the same as updateRP_clinical_cpp()
-void updateRP_genomic_rw_cpp( int p, const arma::mat x_, arma::mat& ind_r_, arma::mat& ind_d_, arma::mat& ind_r_d_, unsigned int J_, arma::vec beta_prop_me_, double beta_prop_sd, arma::mat& xbeta_, arma::vec& be_, arma::vec& h_, arma::vec sd_be_, arma::uvec& sampleRPg_accept_ )
+void updateRP_genomic_rw_cpp( int p, const arma::mat x_, arma::mat& ind_r_, arma::mat& ind_d_, arma::mat& ind_r_d_, unsigned int J_, arma::vec beta_prop_me_, double beta_prop_sd, arma::vec& xbeta_, arma::vec& be_, arma::vec& h_, arma::vec sd_be_, arma::uvec& sampleRPg_accept_ )
 {
     // select parameters to be updated; use p+j for clinical
     arma::uvec updatej = arma::randperm( p );
@@ -354,7 +355,7 @@ void updateRP_genomic_rw_cpp( int p, const arma::mat x_, arma::mat& ind_r_, arma
     double loglh_ini, loglh_prop, logprior_prop, logprior_ini, logprop_prop, logR, logprop_ini;
     
     int j = 0;
-    for( int j_id=0; j_id<p; j_id++ )
+    for( int j_id=0; j_id<p; ++j_id )
     {
         j = updatej(j_id);
         be_prop = be_;
@@ -463,7 +464,7 @@ Rcpp::List drive( const std::string& dataFile, const int p, const int q, const s
     
   // tausq: only for genomic variables
     arma::vec tauSq_exp = arma::zeros<arma::vec>( p );
-    for( unsigned int i=0; i<K; i++ )
+    for( unsigned int i=0; i<K; ++i )
     {
        // groupNoLocation = arma::find( groupInd == groupNo(i) );
         tauSq_exp.elem( arma::find( groupInd == groupNo(i) ) ).fill( tauSq(i) );
@@ -475,11 +476,12 @@ Rcpp::List drive( const std::string& dataFile, const int p, const int q, const s
     sd_bePart2.fill( beta_clin_sd );
     arma::vec sd_be = arma::join_cols( sqrt(sigmaSq * tauSq_exp), sd_bePart2 );
     
+    //arma::uvec xId = arma::linspace<arma::uvec>(2, 1+p+q, p+q)
     arma::mat x = chainData.survData.data->cols( arma::linspace<arma::uvec>(2, 1+p+q, p+q) );
     arma::vec xbeta = x * ini_beta;
     
     arma::vec be_normSq = arma::zeros<arma::vec>( K );
-    for( unsigned int i=0; i<K; i++ )
+    for( unsigned int i=0; i<K; ++i )
         be_normSq(i) = arma::accu( ini_beta.elem( arma::find(groupInd == groupNo(i)) ) % ini_beta.elem( arma::find(groupInd == groupNo(i)) ) );
     
     if( !any( be_normSq ) )
@@ -511,7 +513,7 @@ Rcpp::List drive( const std::string& dataFile, const int p, const int q, const s
     const int cTotalLength = 50;
     Rcout << "Running MCMC iterations ...\n";
     
-    for( unsigned int M=0; M<nIter; M++ )
+    for( unsigned int M=0; M<nIter; ++M )
     {
         
         if( M % 10 == 0 || M == (nIter - 1) )
@@ -534,7 +536,7 @@ Rcpp::List drive( const std::string& dataFile, const int p, const int q, const s
         
 //        if( q > 0 )
 //        {
-            for( unsigned int i=0; i<K; i++ )
+            for( unsigned int i=0; i<K; ++i )
                 be_normSq(i) = arma::accu( be.elem( arma::find(groupInd == groupNo(i)) ) % be.elem( arma::find(groupInd == groupNo(i)) ) );
 //        } else {
 //            be_normSq = be % be;
@@ -549,7 +551,7 @@ Rcpp::List drive( const std::string& dataFile, const int p, const int q, const s
         
 //        if( q > 0 )
 //        {
-            for( unsigned int i=0; i<K; i++ )
+            for( unsigned int i=0; i<K; ++i )
                 tauSq_exp.elem( arma::find(groupInd == groupNo(i)) ).fill( tauSq(i) );
             
             sd_bePart2.fill( beta_clin_sd );
@@ -562,13 +564,20 @@ Rcpp::List drive( const std::string& dataFile, const int p, const int q, const s
         // Save all results
         if( M % thin == 0 )
         {
-            j++;
+            ++j;
             beta_p.row( j )  = be.t();
             h_p.row( j )  = h.t();
             tauSq_p.row( j )  = tauSq.t();
             sigmaSq_p( j ) = sigmaSq;
             lambdaSq_p( j ) = lambdaSq;
         }
+        
+        // adaptve jumping rule
+        if( j > 20 )
+            for( unsigned int jj=0; jj<p+q; ++jj )
+                if( ini_beta( jj ) == beta_p( j - 20, jj ) )
+                    beta_prop_me( jj ) = be( jj );
+        
     }
     
     arma::uvec accept_rate = join_cols(sampleRPg_accept, sampleRPc_accept);// / (double)(nIter);

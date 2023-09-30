@@ -25,7 +25,9 @@ number of genomics variables `p`,
 number of clinical variables `q` and
 true effects of covariates `beta_true`.
 See `?exampleData` for more information of the data.
-To run a Bayesian Lasso Cox model for variable selection of the first $p$ genomics variables, one can specify the hyperparameter `groupInd = 1:p`.
+
+To run a Bayesian Lasso Cox model for variable selection of the first $p$ genomics variables and inclusion of $q$ mandatory variables, one can specify arguments of the main function `psbcSpeedUp()` with `p = p` and `q = q`.
+If the arguments `p` and `q` are unspecified, the Bayesian Lasso Cox model does variable selection for all covariates, i.e., by default `p = ncol(survObj$x)` and `q = 0`.
 
 ```r
 # Load the example dataset

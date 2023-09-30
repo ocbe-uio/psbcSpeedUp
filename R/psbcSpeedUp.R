@@ -292,7 +292,8 @@ psbcSpeedUp <- function(survObj = NULL, p = 0, q = 0, hyperpar = list(),
     ini_beta, ini_tauSq, ini_h, groupInd, # hyperparameters which are vectors
     nIter, nChains, thin, rw
   )
-  ret$output$accept.rate <- as.vector(ret$accept.rate) / nIter
+  
+  ret$output$accept.rate <- as.vector(ret$output$accept.rate) / nIter
 
   if (is.null(colnames(survObj$x))) {
     colnames(ret$output$beta.p) <- paste0("x", 1:ncol(survObj$x))
