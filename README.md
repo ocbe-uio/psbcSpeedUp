@@ -8,6 +8,12 @@ Bayesian Lasso Cox models with other shrinkage and group priors ([Lee et al., 20
 
 ## Installation
 
+Install the latest released version from [CRAN](https://CRAN.R-project.org/package=psbcSpeedUp)
+
+```r
+install.packages("psbcSpeedUp")
+```
+
 Install the latest development version from GitHub
 
 ```r
