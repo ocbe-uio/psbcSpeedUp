@@ -8,20 +8,18 @@
 #' The R code for generating the simulated data is given in the Examples
 #' paragraph.
 #'
+#' @importFrom MASS mvrnorm
 #'
 #' @examples
 #' # Load the example dataset
 #' data("exampleData", package = "psbcSpeedUp")
 #' str(exampleData)
 #'
-#' \dontrun{
 #' # ===============
 #' # The code below is to show how to generate the dataset "exampleData.rda"
 #' # ===============
 #'
 #' requireNamespace("MASS", quietly = TRUE)
-#' requireNamespace("survival", quietly = TRUE)
-#' requireNamespace("mvtnorm", quietly = TRUE)
 #'
 #' ########################### Predefined Functions
 #'
@@ -59,7 +57,7 @@
 #' # genomic
 #' means <- rep(0, p)
 #' Sigma <- diag(1, p)
-#' Xg <- mvrnorm(n, means, Sigma)
+#' Xg <- MASS::mvrnorm(n, means, Sigma)
 #' # clinical
 #' x1 <- rbinom(n = n, size = 1, prob = 0.7)
 #' x2 <- rbinom(n = n, size = 1, prob = 0.3)
@@ -96,6 +94,5 @@
 #' os <- pmin(dt, cens)
 #'
 #' exampleData <- list("t" = os, "di" = status, "x" = X, "beta_true" = bX)
-#' }
 #'
 "exampleData"

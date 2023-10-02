@@ -1,3 +1,5 @@
+[![CRAN_Status_Badge](http://www.r-pkg.org/badges/version/psbcSpeedUp)](https://cran.r-project.org/package=psbcSpeedUp)
+
 # psbcSpeedUp
 
 This is a C++ speed-up and extended version of the R-pakcage [psbcGroup](https://CRAN.R-project.org/package=psbcGroup).
@@ -61,7 +63,7 @@ The function `psbcSpeedUp::plot()` can show the posterior mean and 95% credible 
 plot(fitBayesCox)
 ```
 
-![](https://github.com/ocbe-uio/psbcSpeedUp/blob/main/README_plot_beta.png)<!-- -->
+<img src="man/figures/README_plot_beta.png" width="100%" />
 
 ## References
 
