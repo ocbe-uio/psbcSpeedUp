@@ -1,7 +1,7 @@
 Package: psbcSpeedUp
 Title: Penalized Semiparametric Bayesian Survival Models
-Version: 2.0.3
-Date: 2023-10-01
+Version: 2.0.4
+Date: 2023-10-03
 URL: https://github.com/ocbe-uio/psbcSpeedUp
 BugReports: https://github.com/ocbe-uio/psbcSpeedUp/issues
 Authors@R: c(person("Zhi", "Zhao", role=c("aut","cre"), email = "zhi.zhao@medisin.uio.no"), 
@@ -20,7 +20,7 @@ LinkingTo: Rcpp, RcppArmadillo (>= 0.9.000)
 Imports: Rcpp, xml2, ggplot2, GGally, MASS, utils, stats
 LazyData: true
 NeedsCompilation: yes
-Packaged: 2023-10-01 16:21:37 UTC; zhiz
+Packaged: 2023-10-03 21:06:28 UTC; zhiz
 Author: Zhi Zhao [aut, cre],
   Manuela Zucknick [aut],
   Maral Saadati [aut],
