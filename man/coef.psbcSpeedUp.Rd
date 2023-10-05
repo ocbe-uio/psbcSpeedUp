@@ -37,7 +37,7 @@ mypriorPara <- list(
   "beta.prop.var" = 1, "beta.clin.var" = 1)
 
 # run Bayesian Lasso Cox
-library(psbcSpeedUp)
+library("psbcSpeedUp")
 set.seed(123)
 fitBayesCox <- psbcSpeedUp(survObj,
   p = p, q = q, hyperpar = mypriorPara,

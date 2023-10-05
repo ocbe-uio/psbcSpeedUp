@@ -40,7 +40,7 @@ arma::vec sumMatProdVec( const arma::mat x, const arma::vec y )
 // set a finite partition of the time axis to define the indicator matrices for risk sets and failure sets
 // in order to calculate the increment in the cumulative baseline hazard in each interval
 // also in order to construct the grouped data likelihood
-void settingInterval_cpp( const arma::vec y, const arma::vec delta_, const arma::vec s_, unsigned int J_, arma::mat& ind_d_, arma::mat& ind_r_, arma::mat& ind_r_d_, arma::vec& d_ )
+void settingInterval_cpp( const arma::vec y, const arma::vec delta_, const arma::vec s_, const unsigned int J_, arma::mat& ind_d_, arma::mat& ind_r_, arma::mat& ind_r_d_, arma::vec& d_ )
 {
     ind_d_ = ind_r_ = arma::zeros<arma::mat>(y.n_elem, J_);
     
@@ -83,7 +83,7 @@ void settingInterval_cpp( const arma::vec y, const arma::vec delta_, const arma:
 
 // update cumulative baseline harzard
 // update the increment h_j in the cumulative baseline hazard in each interval
-arma::vec updateBH_cpp( arma::mat& ind_r_d_, arma::vec hPriorSh_, arma::vec& d_, double c0_, unsigned int J_, arma::vec xbeta_ )
+arma::vec updateBH_cpp( arma::mat& ind_r_d_, arma::vec hPriorSh_, arma::vec& d_, double c0_, const unsigned int J_, arma::vec xbeta_ )
 {
     //arma::mat exp_xbeta_mat = matProdVec( ind_r_d_, arma::exp( xbeta_ ) );
     //arma::vec h_rate = c0_ + arma::sum( exp_xbeta_mat.t(), 1 );
@@ -107,7 +107,7 @@ arma::vec updateBH_cpp( arma::mat& ind_r_d_, arma::vec hPriorSh_, arma::vec& d_,
 // sample values from an inverse-Gaussian distribution
 arma::vec rinvgauss( arma::vec a, double b )
 {
-    int n = a.n_elem;
+    unsigned int n = a.n_elem;
     arma::vec pars = arma::zeros<arma::vec>(n);
     double z, y, x, u;
 
@@ -150,7 +150,7 @@ arma::vec updateTau_GL_cpp( double lambdaSq_, double sigmaSq_, arma::vec be_norm
 
 
 // update variance parameter sigma_square sampled from the full conditional inverse-gamma distribution
-double updateSigma_GL_cpp( int p, arma::vec be_normSq_, arma::vec tauSq_ )
+double updateSigma_GL_cpp( const unsigned int p, arma::vec be_normSq_, arma::vec tauSq_ )
 {
     double rate_sig = 0.5 * arma::accu( be_normSq_ / tauSq_ );
     //if( rate_sig == 0. ) rate_sig = 0.0001;
@@ -161,7 +161,7 @@ double updateSigma_GL_cpp( int p, arma::vec be_normSq_, arma::vec tauSq_ )
 }
 
 // update hyperparameter lambda (variance shrinkage of tau) sampled from the full conditional gamma distribution
-double updateLambda_GL_cpp( int p, unsigned int K, double r, double delta, arma::vec tauSq_ )
+double updateLambda_GL_cpp( const unsigned int p, const unsigned int K, double r, double delta, arma::vec tauSq_ )
 {
     double sumTauSq = arma::accu( tauSq_ );
     double shape = (p + K) / 2. + r;
@@ -173,7 +173,7 @@ double updateLambda_GL_cpp( int p, unsigned int K, double r, double delta, arma:
 }
 
 // update coefficients of clinical variables via a rw MH sampler
-void updateRP_clinical_cpp( int p, int q, const arma::mat x_, arma::mat& ind_r_, arma::mat& ind_d_, arma::mat& ind_r_d_, unsigned int J_, arma::vec beta_prop_me_, double beta_prop_sd, arma::vec& xbeta_, arma::vec& be_, arma::vec& h_, arma::vec sd_be_, arma::uvec& sampleRPc_accept_ )
+void updateRP_clinical_cpp( const unsigned int p, const unsigned int q, const arma::mat x_, arma::mat& ind_r_, arma::mat& ind_d_, arma::mat& ind_r_d_, const unsigned int J_, arma::vec beta_prop_me_, double beta_prop_sd, arma::vec& xbeta_, arma::vec& be_, arma::vec& h_, arma::vec sd_be_, arma::uvec& sampleRPc_accept_ )
 {
     // select parameters to be updated; use p+j for clinical
     arma::uvec updatej = arma::randperm( q );
@@ -239,7 +239,7 @@ void updateRP_clinical_cpp( int p, int q, const arma::mat x_, arma::mat& ind_r_,
 }
 
 // update coefficients of genomic variables via a MH sampler
-void updateRP_genomic_cpp( int p, const arma::mat x_, arma::mat& ind_r_, arma::mat& ind_d_, arma::mat& ind_r_d_, unsigned int J_, arma::vec& xbeta_, arma::vec& be_, arma::vec& h_, arma::vec sd_be_, arma::uvec& sampleRPg_accept_ )
+void updateRP_genomic_cpp( const unsigned int p, const arma::mat x_, arma::mat& ind_r_, arma::mat& ind_d_, arma::mat& ind_r_d_, const unsigned int J_, arma::vec& xbeta_, arma::vec& be_, arma::vec& h_, arma::vec sd_be_, arma::uvec& sampleRPg_accept_ )
 {
     arma::uvec updatej = arma::randperm(p);
     /*
@@ -348,7 +348,7 @@ void updateRP_genomic_cpp( int p, const arma::mat x_, arma::mat& ind_r_, arma::m
 }
 
 // update coefficients of genomic variables via a rw MH sampler, almost the same as updateRP_clinical_cpp()
-void updateRP_genomic_rw_cpp( int p, const arma::mat x_, arma::mat& ind_r_, arma::mat& ind_d_, arma::mat& ind_r_d_, unsigned int J_, arma::vec beta_prop_me_, double beta_prop_sd, arma::vec& xbeta_, arma::vec& be_, arma::vec& h_, arma::vec sd_be_, arma::uvec& sampleRPg_accept_ )
+void updateRP_genomic_rw_cpp( const unsigned int p, const arma::mat x_, arma::mat& ind_r_, arma::mat& ind_d_, arma::mat& ind_r_d_, const unsigned int J_, arma::vec beta_prop_me_, double beta_prop_sd, arma::vec& xbeta_, arma::vec& be_, arma::vec& h_, arma::vec sd_be_, arma::uvec& sampleRPg_accept_ )
 {
     // select parameters to be updated; use p+j for clinical
     arma::uvec updatej = arma::randperm( p );
@@ -415,9 +415,9 @@ void updateRP_genomic_rw_cpp( int p, const arma::mat x_, arma::mat& ind_r_, arma
 
 // main function
 // (i) import data and parameters; (ii) MCMC algorithm; (iii) export estimates
-Rcpp::List drive( const std::string& dataFile, const int p, const int q, const std::string& hyperParFile, const std::string& outFilePath,
+Rcpp::List drive( const std::string& dataFile, const unsigned int p, const unsigned int q, const std::string& hyperParFile, const std::string& outFilePath,
                  const arma::vec ini_beta, const arma::vec ini_tauSq, const arma::vec ini_h, const arma::uvec groupInd,
-          unsigned int nIter, unsigned int nChains, unsigned int thin, bool rw)
+                 const unsigned int nIter, const unsigned int nChains, const unsigned int thin, bool rw)
 {
     
     // set random seed
@@ -607,8 +607,8 @@ Rcpp::List drive( const std::string& dataFile, const int p, const int q, const s
 }
 
 // [[Rcpp::export]]
-Rcpp::List psbcSpeedUp_internal( const std::string& dataFile, const int p, const int q, const std::string& hyperParFile, const std::string& outFilePath,
-                                const arma::vec ini_beta, const arma::vec ini_tauSq, const arma::vec ini_h, const arma::uvec groupInd, unsigned int nIter, unsigned int nChains, unsigned int thin, bool rw )
+Rcpp::List psbcSpeedUp_internal( const std::string& dataFile, const unsigned int p, const unsigned int q, const std::string& hyperParFile, const std::string& outFilePath,
+                                const arma::vec ini_beta, const arma::vec ini_tauSq, const arma::vec ini_h, const arma::uvec groupInd, const unsigned int nIter, const unsigned int nChains, const unsigned int thin, bool rw )
 {
   //int status {1};
     Rcpp::List beta_mcmc;
