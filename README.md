@@ -1,4 +1,7 @@
-[![CRAN_Status_Badge](http://www.r-pkg.org/badges/version/psbcSpeedUp)](https://cran.r-project.org/package=psbcSpeedUp)
+[![CRAN](http://www.r-pkg.org/badges/version/psbcSpeedUp)](https://cran.r-project.org/package=psbcSpeedUp)
+[![R-CMD-check](https://github.com/ocbe-uio/psbcSpeedUp/workflows/R-CMD-check/badge.svg)](https://github.com/ocbe-uio/psbcSpeedUp/actions)
+[![License](https://img.shields.io/badge/License-GPLv3-brightgreen.svg)](https://www.gnu.org/licenses/gpl-3.0)
+[![DOI](https://img.shields.io/badge/doi-10.1002%2Fbimj.201400160-brightgreen)](https://doi.org/10.1002/bimj.201400160)
 
 # psbcSpeedUp
 
@@ -69,7 +72,7 @@ The function `psbcSpeedUp::plot()` can show the posterior mean and 95% credible 
 plot(fitBayesCox)
 ```
 
-<img src="man/figures/README_plot_beta.png" width="100%" />
+<img src="man/figures/README_plot_beta.png" width="70%" />
 
 ## References
 
