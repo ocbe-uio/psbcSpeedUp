@@ -1,4 +1,5 @@
 [![CRAN](http://www.r-pkg.org/badges/version/psbcSpeedUp)](https://cran.r-project.org/package=psbcSpeedUp)
+[![r-universe](https://ocbe-uio.r-universe.dev/badges/psbcSpeedUp)](https://ocbe-uio.r-universe.dev/psbcSpeedUp)
 [![R-CMD-check](https://github.com/ocbe-uio/psbcSpeedUp/workflows/R-CMD-check/badge.svg)](https://github.com/ocbe-uio/psbcSpeedUp/actions)
 [![License](https://img.shields.io/badge/License-GPLv3-brightgreen.svg)](https://www.gnu.org/licenses/gpl-3.0)
 [![DOI](https://img.shields.io/badge/doi-10.1002%2Fbimj.201400160-brightgreen)](https://doi.org/10.1002/bimj.201400160)
