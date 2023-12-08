@@ -1,37 +1,36 @@
 #ifndef PSBC_H
 #define PSBC_H
 
-
 #include <vector>
 #include <sstream>
 #include <random>
 
 #ifdef CCODE
-    #include <armadillo>
+#include <armadillo>
 #else
-    #include <RcppArmadillo.h>
+#include <RcppArmadillo.h>
 #endif
 
-class PSBC {
-    
+class PSBC
+{
+
 public:
     PSBC();
     ~PSBC();
-    
-    arma::mat matProdVec( const arma::mat, const arma::vec );
-    arma::vec sumMatProdVec( const arma::mat, const arma::vec );
-    void settingInterval_cpp( const arma::vec, const arma::vec, const arma::vec, const unsigned int, arma::mat&, arma::mat&, arma::mat&, arma::vec& );
-    double updateLambda_GL_cpp( const unsigned int, const unsigned int, double, double, arma::vec );
-    double updateSigma_GL_cpp( const unsigned int, arma::vec, arma::vec );
-    arma::vec rinvgauss( arma::vec, double );
-    arma::vec updateTau_GL_cpp( double, double, arma::vec );
-    arma::vec updateBH_cpp( arma::mat&, arma::vec, arma::vec&, double, const unsigned int, arma::vec );
-    void updateRP_clinical_cpp( const unsigned int, const unsigned int, const arma::mat, arma::mat&, arma::mat&, arma::mat&, const unsigned int, arma::vec, double, arma::vec&, arma::vec&, arma::vec&, arma::vec, arma::uvec& );
-    void updateRP_genomic_cpp( const unsigned int, const arma::mat, arma::mat&, arma::mat&, arma::mat&, const unsigned int, arma::vec&, arma::vec&, arma::vec&, arma::vec, arma::uvec& );
-    void updateRP_genomic_rw_cpp( const unsigned int, const arma::mat, arma::mat&, arma::mat&, arma::mat&, const unsigned int, arma::vec, double, arma::vec&, arma::vec&, arma::vec&, arma::vec, arma::uvec& );
-    
+
+    arma::mat matProdVec(const arma::mat, const arma::vec);
+    arma::vec sumMatProdVec(const arma::mat, const arma::vec);
+    void settingInterval_cpp(const arma::vec, const arma::vec, const arma::vec, const unsigned int, arma::mat &, arma::mat &, arma::mat &, arma::vec &);
+    double updateLambda_GL_cpp(const unsigned int, const unsigned int, double, double, arma::vec);
+    double updateSigma_GL_cpp(const unsigned int, arma::vec, arma::vec);
+    arma::vec rinvgauss(arma::vec, double);
+    arma::vec updateTau_GL_cpp(double, double, arma::vec);
+    arma::vec updateBH_cpp(arma::mat &, arma::vec, arma::vec &, double, const unsigned int, arma::vec);
+    void updateRP_clinical_cpp(const unsigned int, const unsigned int, const arma::mat, arma::mat &, arma::mat &, arma::mat &, const unsigned int, arma::vec, double, arma::vec &, arma::vec &, arma::vec &, arma::vec, arma::uvec &);
+    void updateRP_genomic_cpp(const unsigned int, const arma::mat, arma::mat &, arma::mat &, arma::mat &, const unsigned int, arma::vec &, arma::vec &, arma::vec &, arma::vec, arma::uvec &);
+    void updateRP_genomic_rw_cpp(const unsigned int, const arma::mat, arma::mat &, arma::mat &, arma::mat &, const unsigned int, arma::vec, double, arma::vec &, arma::vec &, arma::vec &, arma::vec, arma::uvec &);
+
 private:
-    
     double be_prop_me_ini = 0.;
     double be_prop_sd_ini = 0.;
     double D1 = 0.;
@@ -49,11 +48,10 @@ private:
     double be_prop_me = 1.;
     double be_prop_sd = 1.;
 
-
     arma::vec be_prop;
     arma::vec exp_xbeta;
     arma::mat h_exp_xbeta_mat, h_exp_xbeta_prop_mat;
-    arma::mat exp_h_exp_xbeta_mat, exp_h_exp_xbeta_prop_mat;//, exp_xbeta_mat;
+    arma::mat exp_h_exp_xbeta_mat, exp_h_exp_xbeta_prop_mat; //, exp_xbeta_mat;
     arma::vec first_sum, second_sum;
     arma::vec first_sum_prop, second_sum_prop;
     arma::vec x_exp_xbeta, xbeta_prop, exp_xbeta_prop, x_exp_xbeta_prop, x_sq_exp_xbeta, x_sq_exp_xbeta_prop;
@@ -61,8 +59,6 @@ private:
     arma::vec D2_1st, D2_2nd, D2_1st_prop, D2_2nd_prop;
     arma::mat D1_2nd_den, D1_2nd_num, D1_2nd_den_prop, D1_2nd_num_prop;
     arma::mat D2_2nd_num, D2_2nd_den, D2_2nd_den_prop, D2_2nd_num_prop;
-    
 };
-
 
 #endif

@@ -13,11 +13,11 @@
 #' @importFrom stats rexp rgamma runif
 #' @importFrom utils write.table
 #'
-#' @param survObj The list containing observed data from \code{n} subjects;
+#' @param survObj a list containing observed data from \code{n} subjects;
 #' \code{t}, \code{di}, \code{x}. See details for more information
 #' @param p number of covariates for variable selection
 #' @param q number of mandatory covariates
-#' @param hyperpar The list containing prior parameter values; among
+#' @param hyperpar a list containing prior parameter values; among
 #' \code{c('groupInd', 'beta.ini', 'eta0', 'kappa0', 'c0', 'r', 'delta',
 #' 'lambdaSq', 'sigmaSq', 'tauSq', 's', 'h', 'beta.prop.var',
 #' 'beta.clin.var')}. See details for more information
@@ -25,7 +25,7 @@
 #' @param burnin number of iterations to discard at the start of the chain.
 #' Default is 0
 #' @param thin thinning MCMC intermediate results to be stored
-#' @param rw When setting to "TRUE", the conventional random walk Metropolis
+#' @param rw when setting to "TRUE", the conventional random walk Metropolis
 #' Hastings algorithm is used. Otherwise, the mean and the variance of the
 #' proposal density is updated using the jumping rule described in
 #' Lee et al. (2011)
@@ -89,10 +89,12 @@
 #'
 #' # Set hyperparameters
 #' mypriorPara <- list(
-#'   "groupInd" = 1:p, "eta0" = 0.02, "kappa0" = 1, "c0" = 2, "r" = 10 / 9, 
-#'   "delta" = 1e-05, "lambdaSq" = 1, "sigmaSq" = runif(1, 0.1, 10), 
-#'   "beta.prop.var" = 1, "beta.clin.var" = 1)
+#'   "groupInd" = 1:p, "eta0" = 0.02, "kappa0" = 1, "c0" = 2, "r" = 10 / 9,
+#'   "delta" = 1e-05, "lambdaSq" = 1, "sigmaSq" = runif(1, 0.1, 10),
+#'   "beta.prop.var" = 1, "beta.clin.var" = 1
+#' )
 #'
+#' \donttest{
 #' # run Bayesian Lasso Cox
 #' library("psbcSpeedUp")
 #' set.seed(123)
@@ -101,6 +103,7 @@
 #'   nIter = 10, burnin = 0, outFilePath = tempdir()
 #' )
 #' plot(fitBayesCox, color = "blue")
+#' }
 #'
 #' @export
 psbcSpeedUp <- function(survObj = NULL, p = 0, q = 0, hyperpar = list(),
@@ -113,7 +116,7 @@ psbcSpeedUp <- function(survObj = NULL, p = 0, q = 0, hyperpar = list(),
   if (sum(names(survObj) %in% c("t", "di", "x")) != 3) {
     stop("List 'survObj' must have three compoents 't', 'di' and 'x'!")
   }
-  if (is.data.frame(survObj$x) | is.matrix(survObj$x)) {
+  if (is.data.frame(survObj$x) || is.matrix(survObj$x)) {
     if (is.data.frame(survObj$x)) {
       survObj$x <- data.matrix(survObj$x)
     }
@@ -124,17 +127,17 @@ psbcSpeedUp <- function(survObj = NULL, p = 0, q = 0, hyperpar = list(),
   if (p + q == 0) {
     p <- ncol(survObj$x)
   } else {
-    if (p %% 1 != 0 | p < 1) {
+    if (p %% 1 != 0 || p < 1) {
       stop("Argument 'p' must be a positive integer!")
     }
-    if (q %% 1 != 0 | q < 0) {
+    if (q %% 1 != 0 || q < 0) {
       stop("Argument 'q' must be a positive integer!")
     }
     if (p + q != ncol(survObj$x)) {
       stop("The sum of 'p' and 'q' must equal the number of columns of 'survObj$x'!")
     }
   }
-  if (thin %% 1 != 0 | thin < 1) {
+  if (thin %% 1 != 0 || thin < 1) {
     stop("Argument 'thin' must be a positive integer!")
   }
 
@@ -145,7 +148,7 @@ psbcSpeedUp <- function(survObj = NULL, p = 0, q = 0, hyperpar = list(),
 
   outFilePathLength <- nchar(outFilePath)
   if (substr(outFilePath, outFilePathLength, outFilePathLength) != "/") {
-    outFilePath <- paste(outFilePath, "/", sep = "")
+    outFilePath <- paste0(outFilePath, "/")
   }
   if (!file.exists(outFilePath)) {
     dir.create(outFilePath)
@@ -154,9 +157,9 @@ psbcSpeedUp <- function(survObj = NULL, p = 0, q = 0, hyperpar = list(),
   # Create temporary directory
   tmpFolderLength <- nchar(tmpFolder)
   if (substr(tmpFolder, tmpFolderLength, tmpFolderLength) != "/") {
-    tmpFolder <- paste(tmpFolder, "/", sep = "")
+    tmpFolder <- paste0(tmpFolder, "/")
   }
-  tmpFolder <- paste(outFilePath, tmpFolder, sep = "")
+  tmpFolder <- paste0(outFilePath, tmpFolder)
   if (!file.exists(tmpFolder)) {
     dir.create(tmpFolder)
   }
@@ -166,10 +169,10 @@ psbcSpeedUp <- function(survObj = NULL, p = 0, q = 0, hyperpar = list(),
 
   # Write down in a single data file
   write.table(cbind(survObj$t, survObj$di, survObj$x),
-    paste(sep = "", tmpFolder, "data.txt"),
+    paste0(tmpFolder, "data.txt"),
     row.names = FALSE, col.names = FALSE
   )
-  data <- paste(sep = "", tmpFolder, "data.txt")
+  data <- paste0(tmpFolder, "data.txt")
 
   # Check hyperparameters
   if (!is.list(hyperpar)) {
@@ -186,8 +189,9 @@ psbcSpeedUp <- function(survObj = NULL, p = 0, q = 0, hyperpar = list(),
          'delta', 'beta.prop.var', 'beta.clin.var')!")
   }
   if ("groupInd" %in% names(hyperpar)) {
-    if (length(hyperpar$groupInd) != p)
+    if (length(hyperpar$groupInd) != p) {
       stop("Please specify correct hyperpar$groupInd!")
+    }
     groupInd <- hyperpar$groupInd
   } else {
     groupInd <- 1:p
@@ -257,7 +261,7 @@ psbcSpeedUp <- function(survObj = NULL, p = 0, q = 0, hyperpar = list(),
     hyperpar$beta_clin_var <- 1
   }
 
-  hyperParFile <- paste(sep = "", tmpFolder, "hyperpar.xml")
+  hyperParFile <- paste0(tmpFolder, "hyperpar.xml")
 
   ## Create the return object
   ret <- list(input = list(), output = list(), call = cl)
@@ -292,21 +296,26 @@ psbcSpeedUp <- function(survObj = NULL, p = 0, q = 0, hyperpar = list(),
     ini_beta, ini_tauSq, ini_h, groupInd, # hyperparameters which are vectors
     nIter, nChains, thin, rw
   )
-  
+
   ret$output$accept.rate <- as.vector(ret$output$accept.rate) / nIter
 
   if (is.null(colnames(survObj$x))) {
-    colnames(ret$output$beta.p) <- paste0("x", 1:ncol(survObj$x))
+    colnames(ret$output$beta.p) <- paste0("x", seq_len(ncol(survObj$x)))
   } else {
     colnames(ret$output$beta.p) <- colnames(survObj$x)
   }
 
   ## Save fitted object
   obj_psbc <- list(input = ret$input, output = ret$output)
-  save(obj_psbc, file = paste(sep = "", outFilePath, "obj_psbc.rda"))
+  save(obj_psbc, file = paste0(outFilePath, "obj_psbc.rda"))
 
   if (outFilePath != tmpFolder) {
     unlink(tmpFolder, recursive = TRUE)
+
+    write.table(cbind(survObj$t, survObj$di, survObj$x),
+      paste0(outFilePath, "data.txt"),
+      row.names = FALSE, col.names = FALSE
+    )
   }
 
   return(ret)

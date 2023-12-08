@@ -34,10 +34,12 @@ survObj <- exampleData[1:3]
 
 # Set hyperparameters
 mypriorPara <- list(
-  "groupInd" = 1:p, "eta0" = 0.02, "kappa0" = 1, "c0" = 2, "r" = 10 / 9, 
-  "delta" = 1e-05, "lambdaSq" = 1, "sigmaSq" = runif(1, 0.1, 10), 
-  "beta.prop.var" = 1, "beta.clin.var" = 1)
+  "groupInd" = 1:p, "eta0" = 0.02, "kappa0" = 1, "c0" = 2, "r" = 10 / 9,
+  "delta" = 1e-05, "lambdaSq" = 1, "sigmaSq" = runif(1, 0.1, 10),
+  "beta.prop.var" = 1, "beta.clin.var" = 1
+)
 
+\donttest{
 # run Bayesian Lasso Cox
 library("psbcSpeedUp")
 set.seed(123)
@@ -46,5 +48,6 @@ fitBayesCox <- psbcSpeedUp(survObj,
   nIter = 10, burnin = 0, outFilePath = tempdir()
 )
 plot(fitBayesCox, color = "blue")
+}
 
 }

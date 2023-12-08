@@ -11,9 +11,8 @@
 extern SEXP _psbcSpeedUp_psbcSpeedUp_internal(void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *);
 
 static const R_CallMethodDef CallEntries[] = {
-    {"_psbcSpeedUp_psbcSpeedUp_internal", (DL_FUNC) &_psbcSpeedUp_psbcSpeedUp_internal, 13},
-    {NULL, NULL, 0}
-};
+    {"_psbcSpeedUp_psbcSpeedUp_internal", (DL_FUNC)&_psbcSpeedUp_psbcSpeedUp_internal, 13},
+    {NULL, NULL, 0}};
 
 void R_init_psbcSpeedUp(DllInfo *dll)
 {

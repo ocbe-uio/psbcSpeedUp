@@ -20,14 +20,14 @@ psbcSpeedUp(
 )
 }
 \arguments{
-\item{survObj}{The list containing observed data from \code{n} subjects;
+\item{survObj}{a list containing observed data from \code{n} subjects;
 \code{t}, \code{di}, \code{x}. See details for more information}
 
 \item{p}{number of covariates for variable selection}
 
 \item{q}{number of mandatory covariates}
 
-\item{hyperpar}{The list containing prior parameter values; among
+\item{hyperpar}{a list containing prior parameter values; among
 \code{c('groupInd', 'beta.ini', 'eta0', 'kappa0', 'c0', 'r', 'delta',
 'lambdaSq', 'sigmaSq', 'tauSq', 's', 'h', 'beta.prop.var',
 'beta.clin.var')}. See details for more information}
@@ -39,7 +39,7 @@ Default is 0}
 
 \item{thin}{thinning MCMC intermediate results to be stored}
 
-\item{rw}{When setting to "TRUE", the conventional random walk Metropolis
+\item{rw}{when setting to "TRUE", the conventional random walk Metropolis
 Hastings algorithm is used. Otherwise, the mean and the variance of the
 proposal density is updated using the jumping rule described in
 Lee et al. (2011)}
@@ -104,10 +104,12 @@ survObj <- exampleData[1:3]
 
 # Set hyperparameters
 mypriorPara <- list(
-  "groupInd" = 1:p, "eta0" = 0.02, "kappa0" = 1, "c0" = 2, "r" = 10 / 9, 
-  "delta" = 1e-05, "lambdaSq" = 1, "sigmaSq" = runif(1, 0.1, 10), 
-  "beta.prop.var" = 1, "beta.clin.var" = 1)
+  "groupInd" = 1:p, "eta0" = 0.02, "kappa0" = 1, "c0" = 2, "r" = 10 / 9,
+  "delta" = 1e-05, "lambdaSq" = 1, "sigmaSq" = runif(1, 0.1, 10),
+  "beta.prop.var" = 1, "beta.clin.var" = 1
+)
 
+\donttest{
 # run Bayesian Lasso Cox
 library("psbcSpeedUp")
 set.seed(123)
@@ -116,6 +118,7 @@ fitBayesCox <- psbcSpeedUp(survObj,
   nIter = 10, burnin = 0, outFilePath = tempdir()
 )
 plot(fitBayesCox, color = "blue")
+}
 
 }
 \references{
