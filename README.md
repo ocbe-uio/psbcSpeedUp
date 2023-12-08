@@ -88,7 +88,7 @@ plotBrier(fitBayesCox, times = 80)
 IBS  0.2089742     0.109274
 ```
 
-<img src="man/figures/README_plot_brier.png" width="50%" />
+<img src="man/figures/README_plot_brier.png" width="80%" />
 
 
 ### Predict survival probabilities and cumulative hazards
