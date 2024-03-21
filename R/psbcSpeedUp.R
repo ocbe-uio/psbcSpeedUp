@@ -12,6 +12,7 @@
 #' @importFrom xml2 as_xml_document write_xml
 #' @importFrom stats rexp rgamma runif
 #' @importFrom utils write.table
+#' @importFrom survival survreg Surv
 #'
 #' @param survObj a list containing observed data from \code{n} subjects;
 #' \code{t}, \code{di}, \code{x}. See details for more information
