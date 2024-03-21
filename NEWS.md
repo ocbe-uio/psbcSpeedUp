@@ -6,6 +6,10 @@
 * add R functions for feature (stability) selection
 * extend C++ source code for implementing other shrinkage and group priors
 
+# psbcSpeedUp 2.0.7
+
+* Set default `eta0` and `kappa0` via (Weibull) parametric survival model
+
 # psbcSpeedUp 2.0.6
 
 * Fixed a bug in function `updateBH_cpp()`
