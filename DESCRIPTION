@@ -23,7 +23,7 @@ Imports: Rcpp, xml2, ggplot2, GGally, MASS, survival, riskRegression,
 Suggests: knitr
 LazyData: true
 NeedsCompilation: yes
-Packaged: 2024-03-21 21:44:53 UTC; zhiz
+Packaged: 2024-03-21 22:29:26 UTC; zhiz
 Author: Zhi Zhao [aut, cre],
   Manuela Zucknick [aut],
   Maral Saadati [aut],
