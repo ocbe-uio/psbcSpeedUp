@@ -8,7 +8,7 @@ vignette: >
 ---
 
 ```{r setup, include=FALSE}
-knitr::opts_chunk$set(echo = TRUE, eval = TRUE)
+knitr::opts_chunk$set(echo = TRUE, eval = FALSE)
 options(rmarkdown.html_vignette.check_title = FALSE)
 ```
 
@@ -65,6 +65,7 @@ fitBayesCox <- psbcSpeedUp(survObj, p=p, q=q, hyperpar=mypriorPara,
 nIter=1000, burnin=500, outFilePath="/tmp")
 ```
 
+
 ### Plot posterior estimates of regression cofficients
 
 The function `psbcSpeedUp::plot()` can show the posterior mean and 95% credible intervals of regression coefficients.
@@ -73,6 +74,9 @@ The function `psbcSpeedUp::plot()` can show the posterior mean and 95% credible 
 plot(fitBayesCox)
 ```
 
+<img src="../man/figures/README_plot_beta.png" width="70%" />
+
+
 ### Plot time-dependent Brier scores
 
 The function `psbcSpeedUp::plotBrier()` can show the time-dependent Brier scores based on posterior mean of coefficients or Bayesian model averaging.
@@ -80,6 +84,13 @@ The function `psbcSpeedUp::plotBrier()` can show the time-dependent Brier scores
 ```{r, fig.width=6, fig.heigh=5}
 plotBrier(fitBayesCox, times = 80)
 ```
+```
+##     Null.model Bayesian.Cox
+## IBS  0.2089742   0.08195375
+```
+
+<img src="../man/figures/README_plot_brier.png" width="90%" />
+
 
 ### Predict survival probabilities and cumulative hazards
 
@@ -88,7 +99,20 @@ The function `psbcSpeedUp::predict()` can estimate the survival probabilities an
 ```{r}
 predict(fitBayesCox, type = c("cumhazard", "survival"))
 ```
-
+```
+##        observation   times cumhazard  survival
+##     1:           1   0.264  1.14e-05  1.00e+00
+##     2:           2   0.264  4.66e-05  1.00e+00
+##     3:           3   0.264  6.07e-05  1.00e+00
+##     4:           4   0.264  1.71e-05  1.00e+00
+##     5:           5   0.264  7.55e-05  1.00e+00
+##    ---                                        
+## 39996:         196 107.641  2.76e+00  6.36e-02
+## 39997:         197 107.641  5.65e-01  5.68e-01
+## 39998:         198 107.641  5.37e+01  4.86e-24
+## 39999:         199 107.641  4.25e+02 2.25e-185
+## 40000:         200 107.641  1.89e-01  8.28e-01
+```
 
 ## References
 

@@ -19,8 +19,8 @@
 #' @param times time points at which to evaluate the risks. If \code{NULL}
 #' (default), the event/censoring times are used. If \code{type="brier"}, the
 #' largest one of the \code{times} is used
-#' @param type option to chose for predicting survival probabilities
-#' (\code{type="probability"}) and brier scores (\code{type="brier"})
+#' @param type option to chose for predicting survival probabilities (one of
+#' \code{c('hazard','cumhazard','survival')}) or brier scores (\code{type="brier"})
 #' @param method option to use the posterior mean (\code{"mean"}) of coefficients
 #' for prediction or Bayesian model averaging (\code{"BMA"}) for prediction
 #' @param \dots not used

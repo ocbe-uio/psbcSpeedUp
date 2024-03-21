@@ -1,10 +1,7 @@
-[![CRAN](http://www.r-pkg.org/badges/version/psbcSpeedUp)](https://cran.r-project.org/package=psbcSpeedUp)
-[![r-universe](https://ocbe-uio.r-universe.dev/badges/psbcSpeedUp)](https://ocbe-uio.r-universe.dev/psbcSpeedUp)
-[![R-CMD-check](https://github.com/ocbe-uio/psbcSpeedUp/workflows/R-CMD-check/badge.svg)](https://github.com/ocbe-uio/psbcSpeedUp/actions)
-[![License](https://img.shields.io/badge/License-GPLv3-brightgreen.svg)](https://www.gnu.org/licenses/gpl-3.0)
-[![DOI](https://img.shields.io/badge/doi-10.1002%2Fbimj.201400160-brightgreen)](https://doi.org/10.1002/bimj.201400160)
-
 # psbcSpeedUp
+
+[![CRAN](http://www.r-pkg.org/badges/version/psbcSpeedUp)](https://cran.r-project.org/package=psbcSpeedUp)
+
 
 This is a C++ speed-up and extended version of the R-pakcage [psbcGroup](https://CRAN.R-project.org/package=psbcGroup).
 It implements the Bayesian Lasso Cox model ([Lee et al., 2011](https://doi.org/10.2202/1557-4679.1301)) and the Bayesian Lasso Cox with mandatory variables ([Zucknick et al., 2015](https://doi.org/10.1002/bimj.201400160)).
@@ -73,7 +70,7 @@ The function `psbcSpeedUp::plot()` can show the posterior mean and 95% credible 
 plot(fitBayesCox)
 ```
 
-<img src="man/figures/README_plot_beta.png" width="70%" />
+<img src="man/figures/README_plot_beta.png" width="50%" />
 
 
 ### Plot time-dependent Brier scores
@@ -88,7 +85,7 @@ plotBrier(fitBayesCox, times = 80)
 IBS  0.2089742     0.109274
 ```
 
-<img src="man/figures/README_plot_brier.png" width="80%" />
+<img src="man/figures/README_plot_brier.png" width="50%" />
 
 
 ### Predict survival probabilities and cumulative hazards
@@ -112,7 +109,6 @@ predict(fitBayesCox, type = c("cumhazard", "survival"))
 ## 39999:         199 107.641  4.13e+02 5.72e-180
 ## 40000:         200 107.641  2.24e-01  7.99e-01
 ```
-
 
 ## References
 

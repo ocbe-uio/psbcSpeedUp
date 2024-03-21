@@ -88,7 +88,7 @@ arma::vec PSBC::updateBH_cpp(arma::mat &ind_r_d_, arma::vec hPriorSh_, arma::vec
     for( unsigned int i=0; i<J_; ++i )
      //h_rate(i) += arma::accu( ind_r_d_.col(i) % arma::exp( xbeta_ ) );
         h_rate(i) += arma::dot( ind_r_d_.col(i), xbeta_ );*/
-    arma::vec h_rate = c0_ + sumMatProdVec(ind_r_d_, exp_xbeta);
+    arma::vec h_rate = c0_ + sumMatProdVec(ind_r_d_, arma::exp( xbeta_ ));
 
     // arma::vec shape = hPriorSh_ + d_;
     arma::vec h_ = arma::zeros<arma::vec>(J_);

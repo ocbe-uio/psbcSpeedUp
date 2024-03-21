@@ -21,8 +21,8 @@ components \code{t}, \code{di}, \code{x}. If \code{NULL}, the prediction is
 based on the training data. If \code{type} is among
 \code{c("hazard", "cumhazard", "survival")}, only \code{survObj.new$x} is needed}
 
-\item{type}{option to chose for predicting survival probabilities
-(\code{type="probability"}) and brier scores (\code{type="brier"})}
+\item{type}{option to chose for predicting survival probabilities (one of
+\code{c('hazard','cumhazard','survival')}) or brier scores (\code{type="brier"})}
 
 \item{method}{option to use the posterior mean (\code{"mean"}) of coefficients
 for prediction or Bayesian model averaging (\code{"BMA"}) for prediction}

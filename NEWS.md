@@ -6,6 +6,11 @@
 * add R functions for feature (stability) selection
 * extend C++ source code for implementing other shrinkage and group priors
 
+# psbcSpeedUp 2.0.6
+
+* Fixed a bug in function `updateBH_cpp()`
+* Other minor changes
+
 # psbcSpeedUp 2.0.5
 
 * Added R functions for survival predictions, e.g. time-dependent Brier scores, integrated Brier score
