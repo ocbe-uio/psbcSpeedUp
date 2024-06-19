@@ -5,7 +5,6 @@
 #' This a speed-up and extended version of the function \code{psbcGL()} in the R package \code{psbcGrouup}
 #'
 #' @name psbcSpeedUp
-#' @docType package
 #' @useDynLib psbcSpeedUp
 #' @aliases psbcSpeedUp-package
 #' @importFrom Rcpp evalCpp

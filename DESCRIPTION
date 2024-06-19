@@ -1,7 +1,7 @@
 Package: psbcSpeedUp
 Title: Penalized Semiparametric Bayesian Cox Models
 Version: 2.0.7
-Date: 2024-03-21
+Date: 2024-06-19
 URL: https://github.com/ocbe-uio/psbcSpeedUp
 BugReports: https://github.com/ocbe-uio/psbcSpeedUp/issues
 Authors@R: c(person("Zhi", "Zhao", role=c("aut","cre"), email = "zhi.zhao@medisin.uio.no"), 
@@ -16,16 +16,10 @@ Copyright: The C++ files pugixml.cpp, pugixml.h and pugiconfig.h are
 VignetteBuilder: knitr
 Depends: R (>= 4.0)
 Encoding: UTF-8
-RoxygenNote: 7.2.3
+RoxygenNote: 7.3.1
 LinkingTo: Rcpp, RcppArmadillo (>= 0.9.000)
 Imports: Rcpp, xml2, ggplot2, GGally, MASS, survival, riskRegression,
         utils, stats
 Suggests: knitr
 LazyData: true
 NeedsCompilation: yes
-Packaged: 2024-03-21 22:29:26 UTC; zhiz
-Author: Zhi Zhao [aut, cre],
-  Manuela Zucknick [aut],
-  Maral Saadati [aut],
-  Axel Benner [aut]
-Maintainer: Zhi Zhao <zhi.zhao@medisin.uio.no>

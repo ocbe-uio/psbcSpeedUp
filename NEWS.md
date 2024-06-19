@@ -1,18 +1,11 @@
-# TODO in next versions
-
-* use Bandicoot: Armadillo C++ library for GPU
-* remove Rcpp::List object, instead writing all output objects into files
-* allow multiple chains and omp for parallelisation
-* add R functions for feature (stability) selection
-* extend C++ source code for implementing other shrinkage and group priors
-
 # psbcSpeedUp 2.0.7
 
 * Set default `eta0` and `kappa0` via (Weibull) parametric survival model
+* Fixed a bug in function `PSBC::updateTau_GL_cpp()`
 
 # psbcSpeedUp 2.0.6
 
-* Fixed a bug in function `updateBH_cpp()`
+* Fixed a bug in function `PSBC::updateBH_cpp()`
 * Other minor changes
 
 # psbcSpeedUp 2.0.5
