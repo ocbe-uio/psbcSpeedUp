@@ -142,7 +142,7 @@ arma::vec PSBC::updateTau_GL_cpp(double lambdaSq_, double sigmaSq_, arma::vec be
         nu.fill(10.);
     }
 
-    arma::vec tauSq = rinvgauss(nu, lambdaSq_);
+    arma::vec tauSq = 1. / rinvgauss(nu, lambdaSq_);
 
     return tauSq;
 }
