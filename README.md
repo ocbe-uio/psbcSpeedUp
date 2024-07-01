@@ -1,10 +1,10 @@
+# psbcSpeedUp
+
 [![CRAN](http://www.r-pkg.org/badges/version/psbcSpeedUp)](https://cran.r-project.org/package=psbcSpeedUp)
 [![r-universe](https://ocbe-uio.r-universe.dev/badges/psbcSpeedUp)](https://ocbe-uio.r-universe.dev/psbcSpeedUp)
 [![R-CMD-check](https://github.com/ocbe-uio/psbcSpeedUp/workflows/R-CMD-check/badge.svg)](https://github.com/ocbe-uio/psbcSpeedUp/actions)
 [![License](https://img.shields.io/badge/License-GPLv3-brightgreen.svg)](https://www.gnu.org/licenses/gpl-3.0)
-[![DOI](https://img.shields.io/badge/doi-10.1002%2Fbimj.201400160-brightgreen)](https://doi.org/10.1002/bimj.201400160)
-
-# psbcSpeedUp
+[![DOI](https://img.shields.io/badge/doi-10.32614%2FCRAN.package.psbcSpeedUp-brightgreen)](https://doi.org/10.1002/bimj.201400160)
 
 This is a C++ speed-up and extended version of the R-pakcage [psbcGroup](https://CRAN.R-project.org/package=psbcGroup).
 It implements the Bayesian Lasso Cox model ([Lee et al., 2011](https://doi.org/10.2202/1557-4679.1301)) and the Bayesian Lasso Cox with mandatory variables ([Zucknick et al., 2015](https://doi.org/10.1002/bimj.201400160)).
