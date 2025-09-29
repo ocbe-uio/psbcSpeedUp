@@ -13,15 +13,5 @@ Rcpp::List psbcSpeedUp_internal(const std::string &dataFile, const unsigned int 
                                 const arma::vec ini_beta, const arma::vec ini_tauSq, const arma::vec ini_h, const arma::uvec groupInd,
                                 const unsigned int nIter = 10, const unsigned int nChains = 1, const unsigned int thin = 1, bool rw = false);
 
-// define global variables
-arma::mat ind_r;
-arma::mat ind_d;
-arma::mat ind_r_d;
-
-arma::vec xbeta;
-arma::vec be;
-arma::uvec sampleRPc_accept, sampleRPg_accept;
-arma::vec d; // used to update "h"
-arma::vec h;
 
 #endif

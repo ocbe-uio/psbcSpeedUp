@@ -70,12 +70,14 @@ Rcpp::List drive(const std::string &dataFile, const unsigned int p, const unsign
     arma::uvec groupNo = arma::unique(groupInd);
     unsigned int K = groupNo.n_elem;
 
-    ind_r_d = ind_r = ind_d = arma::zeros<arma::mat>(chainData.survData.data->n_rows, J);
-    d = arma::sum(ind_d.t(), 1);
+    arma::mat ind_r_d = arma::zeros<arma::mat>(chainData.survData.data->n_rows, J);
+    arma::mat ind_r = arma::zeros<arma::mat>(chainData.survData.data->n_rows, J);
+    arma::mat ind_d = arma::zeros<arma::mat>(chainData.survData.data->n_rows, J);
+    arma::vec d = arma::sum(ind_d.t(), 1);
     PSBC::settingInterval_cpp(dataTime, dataDi, s, J, ind_d, ind_r, ind_r_d, d);
 
     arma::vec beta_prop_me;
-    be = beta_prop_me = ini_beta;
+    arma::vec be = beta_prop_me = ini_beta;
     arma::mat beta_p = arma::zeros<arma::mat>((int)(nIter / thin) + 1, p + q);
     beta_p.row(0) = ini_beta.t();
 
@@ -84,7 +86,7 @@ Rcpp::List drive(const std::string &dataFile, const unsigned int p, const unsign
     // double sigmaSq;
     // sigmaSq = chainData.sigmaSq;
     arma::vec tauSq = ini_tauSq;
-    h = ini_h;
+    arma::vec h = ini_h;
 
     // tausq: only for genomic variables
     arma::vec tauSq_exp = arma::zeros<arma::vec>(p);
@@ -124,8 +126,8 @@ Rcpp::List drive(const std::string &dataFile, const unsigned int p, const unsign
 
     arma::vec sigmaSq_p = arma::zeros<arma::vec>((int)(nIter / thin) + 1);
     arma::vec lambdaSq_p = sigmaSq_p;
-    sampleRPc_accept = arma::zeros<arma::uvec>(q);
-    sampleRPg_accept = arma::zeros<arma::uvec>(p);
+    arma::uvec sampleRPc_accept = arma::zeros<arma::uvec>(q);
+    arma::uvec sampleRPg_accept = arma::zeros<arma::uvec>(p);
 
     // ###########################################################
     // ## MCMC loop
