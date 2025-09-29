@@ -1,13 +1,5 @@
 #include "psbc.h"
 
-#ifndef CCODE
-using Rcpp::Rcerr;
-using Rcpp::Rcout;
-#else
-#define Rcout std::cout
-#define Rcerr std::cerr
-#endif
-
 PSBC::PSBC()
 {
 }

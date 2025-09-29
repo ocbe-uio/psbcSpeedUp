@@ -2,6 +2,7 @@
 
 * Replace `pugixml.cpp` by `Rcpp::List`
 * Convert line endings in configure.ac to LF
+* Remove redundant C++ code
 * Require C++17
 
 # psbcSpeedUp 2.0.7

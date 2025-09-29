@@ -284,7 +284,7 @@ psbcSpeedUp <- function(survObj = NULL, p = 0, q = 0, hyperpar = list(),
   # Run Bayesian Cox model
   nChains <- 1
   ret$output <- psbcSpeedUp_internal(
-    data, p, q, hyperpar, outFilePath,
+    data, p, q, hyperpar, # outFilePath,
     ini_beta, ini_tauSq, ini_h, groupInd, 
     nIter, nChains, thin, rw
   )

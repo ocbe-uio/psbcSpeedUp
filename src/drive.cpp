@@ -1,12 +1,5 @@
 #include "drive.h"
 
-#ifndef CCODE
-using Rcpp::Rcerr;
-using Rcpp::Rcout;
-#else
-#define Rcout std::cout
-#define Rcerr std::cerr
-#endif
 
 #ifdef _OPENMP
 extern omp_lock_t RNGlock; /*defined in global.h*/
@@ -21,7 +14,7 @@ using Utils::Chain_Data;
 
 // main function
 // (i) import data and parameters; (ii) MCMC algorithm; (iii) export estimates
-Rcpp::List drive(const std::string &dataFile, const unsigned int p, const unsigned int q, Rcpp::List &hyperParFile, const std::string &outFilePath,
+Rcpp::List drive(const std::string &dataFile, const unsigned int p, const unsigned int q, Rcpp::List &hyperParFile, 
                  const arma::vec ini_beta, const arma::vec ini_tauSq, const arma::vec ini_h, const arma::uvec groupInd,
                  const unsigned int nIter, const unsigned int nChains, const unsigned int thin, bool rw)
 {
@@ -44,7 +37,7 @@ Rcpp::List drive(const std::string &dataFile, const unsigned int p, const unsign
     // Rcout << std::fixed << std::setprecision(11);
 
     Chain_Data chainData; // this initialises the pointers and the strings to ""
-    chainData.outFilePath = outFilePath;
+    // chainData.outFilePath = outFilePath;
 
     // PSBC myPSBC;
 
@@ -141,13 +134,13 @@ Rcpp::List drive(const std::string &dataFile, const unsigned int p, const unsign
     // unsigned int tick = 100; // how many iter for each print?
     unsigned int j = 0; // count thinned results
     const int cTotalLength = 50;
-    Rcout << "Running MCMC iterations ...\n";
+    std::cout << "Running MCMC iterations ...\n";
 
     for (unsigned int M = 0; M < nIter; ++M)
     {
 
         if (M % 10 == 0 || M == (nIter - 1))
-            Rcout << "\r[" <<                                               //'\r' aka carriage return should move printer's cursor back at the beginning of the current line
+            std::cout << "\r[" <<                                               //'\r' aka carriage return should move printer's cursor back at the beginning of the current line
                 std::string(cTotalLength * (M + 1.) / nIter, '#') <<        // printing filled part
                 std::string(cTotalLength * (1. - (M + 1.) / nIter), '-') << // printing empty part
                 "] " << int((M + 1.) / nIter * 100.0) << "%\r";             // printing percentage
@@ -214,7 +207,7 @@ Rcpp::List drive(const std::string &dataFile, const unsigned int p, const unsign
     arma::uvec accept_rate = join_cols(sampleRPg_accept, sampleRPc_accept); // / (double)(nIter);
 
     // Exit
-    Rcout << "\nDONE, exiting! \n";
+    std::cout << "\nDONE, exiting! \n";
 
     return Rcpp::List::create(Rcpp::Named("beta.p") = beta_p,
                               Rcpp::Named("h.p") = h_p,
@@ -225,7 +218,7 @@ Rcpp::List drive(const std::string &dataFile, const unsigned int p, const unsign
 }
 
 // [[Rcpp::export]]
-Rcpp::List psbcSpeedUp_internal(const std::string &dataFile, const unsigned int p, const unsigned int q, Rcpp::List &hyperParFile, const std::string &outFilePath,
+Rcpp::List psbcSpeedUp_internal(const std::string &dataFile, const unsigned int p, const unsigned int q, Rcpp::List &hyperParFile, 
                                 const arma::vec ini_beta, const arma::vec ini_tauSq, const arma::vec ini_h, const arma::uvec groupInd, const unsigned int nIter, const unsigned int nChains, const unsigned int thin, bool rw)
 {
     // int status {1};
@@ -233,11 +226,12 @@ Rcpp::List psbcSpeedUp_internal(const std::string &dataFile, const unsigned int 
     try
     {
         // status = drive(...);
-        beta_mcmc = drive(dataFile, p, q, hyperParFile, outFilePath, ini_beta, ini_tauSq, ini_h, groupInd, nIter, nChains, thin, rw);
+        beta_mcmc = drive(dataFile, p, q, hyperParFile, 
+            ini_beta, ini_tauSq, ini_h, groupInd, nIter, nChains, thin, rw);
     }
     catch (const std::exception &e)
     {
-        Rcout << e.what() << '\n'; // we can use Rcerr here because we're reaching here from R for sure
+        std::cout << e.what() << '\n'; // we can use Rcerr here because we're reaching here from R for sure
     }
 
     // return status;
