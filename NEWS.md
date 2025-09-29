@@ -1,3 +1,9 @@
+# psbcSpeedUp 2.1.0
+
+* Replace `pugixml.cpp` by `Rcpp::List`
+* Convert line endings in configure.ac to LF
+* Require C++17
+
 # psbcSpeedUp 2.0.7
 
 * Set default `eta0` and `kappa0` via (Weibull) parametric survival model

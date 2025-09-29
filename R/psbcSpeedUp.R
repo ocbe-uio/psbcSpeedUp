@@ -8,7 +8,6 @@
 #' @useDynLib psbcSpeedUp
 #' @aliases psbcSpeedUp-package
 #' @importFrom Rcpp evalCpp
-#' @importFrom xml2 as_xml_document write_xml
 #' @importFrom stats rexp rgamma runif
 #' @importFrom utils write.table
 #' @importFrom survival survreg Surv
@@ -264,8 +263,6 @@ psbcSpeedUp <- function(survObj = NULL, p = 0, q = 0, hyperpar = list(),
     hyperpar$beta_clin_var <- 1
   }
 
-  hyperParFile <- paste0(tmpFolder, "hyperpar.xml")
-
   ## Create the return object
   ret <- list(input = list(), output = list(), call = cl)
   class(ret) <- "psbcSpeedUp"
@@ -284,19 +281,11 @@ psbcSpeedUp <- function(survObj = NULL, p = 0, q = 0, hyperpar = list(),
   hyperpar$s <- hyperpar$beta.ini <- hyperpar$tauSq <- hyperpar$h <- hyperpar$groupInd <-
     hyperpar$beta.prop.var <- hyperpar$beta.clin.var <- NULL
 
-  ## Set up the XML file for hyperparameters
-  xml <- xml2::as_xml_document(
-    list(hyperparameters = list(
-      lapply(hyperpar, function(x) list(format(x, scientific = FALSE))) # every element in the list should be a list
-    ))
-  )
-  xml2::write_xml(xml, file = hyperParFile)
-
   # Run Bayesian Cox model
   nChains <- 1
   ret$output <- psbcSpeedUp_internal(
-    data, p, q, hyperParFile, outFilePath,
-    ini_beta, ini_tauSq, ini_h, groupInd, # hyperparameters which are vectors
+    data, p, q, hyperpar, outFilePath,
+    ini_beta, ini_tauSq, ini_h, groupInd, 
     nIter, nChains, thin, rw
   )
 

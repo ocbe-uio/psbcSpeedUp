@@ -1,0 +1,5 @@
+^test_build.R$
+^\.github$
+^LICENSE$
+^.*\.Rproj$
+^\.Rproj\.user$

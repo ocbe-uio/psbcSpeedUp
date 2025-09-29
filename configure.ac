@@ -18,11 +18,11 @@ AC_LANG(C++)
 AC_PROG_CXX
 
 # Check for c++17 support
-CXXFLAGS="-Werror -std=c++17 -Wno-reorder -fPIC"
+CXXFLAGS="-Werror -std=c++17 -Wno-reorder -fPIC -DARMA_USE_CURRENT"
 AC_MSG_CHECKING([whether CXX supports -std=c++17])
 AC_COMPILE_IFELSE(
 	[AC_LANG_PROGRAM([])],
-	[AC_MSG_RESULT([yes]); CPPUTEST_CPP17FLAG="-std=c++17" ],
+	[AC_MSG_RESULT([yes]); CPPUTEST_CPP11FLAG="-std=c++17" ],
 	[AC_MSG_RESULT([no]);
 		AC_MSG_RESULT([]);
 		AC_MSG_RESULT([psbcSpeedUp needs a c++17 compatible compiler!]);
@@ -32,6 +32,18 @@ AC_COMPILE_IFELSE(
 		AC_MSG_RESULT([]);
 		AC_MSG_ERROR([Compiler not supported])])
 CXXFLAGS="$saved_cxxflags"
+
+## Add additional options for GCC compiler (for testing before publishing)
+# if [ ! -d "~/.R" ]; then
+# mkdir ~/.R; touch ~/.R/Makevars
+# echo "CXXFLAGS = -O3 -Wall -Wconversion -Wuninitialized -pedantic -frtti -fsanitize=address,undefined -fno-sanitize=float-divide-by-zero -fno-sanitize=alignment" > ~/.R/Makevars
+# elif [ ! -e "~/.R/Makevars" ]; then
+# touch ~/.R/Makevars
+# echo "CXXFLAGS = -O3 -Wall -Wconversion -Wuninitialized -pedantic -frtti -fsanitize=address,undefined -fno-sanitize=float-divide-by-zero -fno-sanitize=alignment" > ~/.R/Makevars
+# else
+#   mv ~/.R/Makevars ~/.R/Makevars.bak_CustomConfig
+# echo "CXXFLAGS = -O3 -Wall -Wconversion -Wuninitialized -pedantic -frtti -fsanitize=address,undefined -fno-sanitize=float-divide-by-zero -fno-sanitize=alignment" > ~/.R/Makevars
+# fi
 
 # Check for OMP support
 AC_OPENMP

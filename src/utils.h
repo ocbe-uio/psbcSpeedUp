@@ -13,7 +13,6 @@
 #include <cmath>
 #include <limits>
 
-#include "pugixml.h"
 
 namespace Utils
 {
@@ -114,9 +113,6 @@ namespace Utils
 	// void initMissingData(std::shared_ptr<arma::mat> data, std::shared_ptr<arma::umat> missingDataArrayIndexes, std::shared_ptr<arma::uvec> completeCases, bool print=false );
 
 	void formatData(const std::string &dataFileName, Surv_Data &survData);
-
-	void readHyperPar(const std::string &hyperParFile, Chain_Data &chainData);
-	// void readInitialPar(const std::string& initialParFile, Initial_Data& initialData );
 
 	template <typename T>
 	int sgn(T val)

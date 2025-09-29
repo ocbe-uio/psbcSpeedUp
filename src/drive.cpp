@@ -21,7 +21,7 @@ using Utils::Chain_Data;
 
 // main function
 // (i) import data and parameters; (ii) MCMC algorithm; (iii) export estimates
-Rcpp::List drive(const std::string &dataFile, const unsigned int p, const unsigned int q, const std::string &hyperParFile, const std::string &outFilePath,
+Rcpp::List drive(const std::string &dataFile, const unsigned int p, const unsigned int q, const Rcpp::List &hyperParFile, const std::string &outFilePath,
                  const arma::vec ini_beta, const arma::vec ini_tauSq, const arma::vec ini_h, const arma::uvec groupInd,
                  const unsigned int nIter, const unsigned int nChains, const unsigned int thin, bool rw)
 {
@@ -52,14 +52,20 @@ Rcpp::List drive(const std::string &dataFile, const unsigned int p, const unsign
     // Rcout << "Reading input files ... " <<  "\n";
 
     Utils::formatData(dataFile, chainData.survData);
-    Utils::readHyperPar(hyperParFile, chainData);
+    // Utils::readHyperPar(hyperParFile, chainData);
 
-    // declare all the data-related variables
-    double eta0 = chainData.eta0;
-    double kappa0 = chainData.kappa0;
-    double c0 = chainData.c0;
-    double r = chainData.r;
-    double delta = chainData.delta;
+    
+    // get hyperparameters
+    double eta0 = Rcpp::as<double>(hyperParFile["eta0"]);
+    double kappa0 = Rcpp::as<double>(hyperParFile["kappa0"]);
+    double c0 = Rcpp::as<double>(hyperParFile["c0"]);
+    double r = Rcpp::as<double>(hyperParFile["r"]);
+    double delta = Rcpp::as<double>(hyperParFile["delta"]);
+    double beta_prop_sd = sqrt(Rcpp::as<double>(hyperParFile["beta_prop_var"]));
+    double beta_clin_sd = sqrt(Rcpp::as<double>(hyperParFile["beta_clin_var"]));
+    double lambdaSq = Rcpp::as<double>(hyperParFile["lambdaSq"]);
+    // double rate = Rcpp::as<double>(hyperPar["rate"]);
+    double sigmaSq = Rcpp::as<double>(hyperParFile["sigmaSq"]);
 
     arma::vec dataTime = chainData.survData.data->col(0);
     arma::vec dataDi = chainData.survData.data->col(1);
@@ -79,10 +85,10 @@ Rcpp::List drive(const std::string &dataFile, const unsigned int p, const unsign
     arma::mat beta_p = arma::zeros<arma::mat>((int)(nIter / thin) + 1, p + q);
     beta_p.row(0) = ini_beta.t();
 
-    double lambdaSq;
-    lambdaSq = chainData.lambdaSq;
-    double sigmaSq;
-    sigmaSq = chainData.sigmaSq;
+    // double lambdaSq;
+    // lambdaSq = chainData.lambdaSq;
+    // double sigmaSq;
+    // sigmaSq = chainData.sigmaSq;
     arma::vec tauSq = ini_tauSq;
     h = ini_h;
 
@@ -94,8 +100,8 @@ Rcpp::List drive(const std::string &dataFile, const unsigned int p, const unsign
         tauSq_exp.elem(arma::find(groupInd == groupNo(i))).fill(tauSq(i));
     }
 
-    double beta_prop_sd = sqrt(chainData.beta_prop_var);
-    double beta_clin_sd = sqrt(chainData.beta_clin_var);
+    // double beta_prop_sd = sqrt(chainData.beta_prop_var);
+    // double beta_clin_sd = sqrt(chainData.beta_clin_var);
     arma::vec sd_bePart2 = arma::zeros<arma::vec>(q);
     sd_bePart2.fill(beta_clin_sd);
     arma::vec sd_be = arma::join_cols(sqrt(sigmaSq * tauSq_exp), sd_bePart2);
@@ -218,7 +224,7 @@ Rcpp::List drive(const std::string &dataFile, const unsigned int p, const unsign
 }
 
 // [[Rcpp::export]]
-Rcpp::List psbcSpeedUp_internal(const std::string &dataFile, const unsigned int p, const unsigned int q, const std::string &hyperParFile, const std::string &outFilePath,
+Rcpp::List psbcSpeedUp_internal(const std::string &dataFile, const unsigned int p, const unsigned int q, const Rcpp::List &hyperParFile, const std::string &outFilePath,
                                 const arma::vec ini_beta, const arma::vec ini_tauSq, const arma::vec ini_h, const arma::uvec groupInd, const unsigned int nIter, const unsigned int nChains, const unsigned int thin, bool rw)
 {
     // int status {1};
