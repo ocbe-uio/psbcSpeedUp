@@ -12,12 +12,14 @@ Rcpp::Rostream<false>& Rcpp::Rcerr = Rcpp::Rcpp_cerr_get();
 #endif
 
 // psbcSpeedUp_internal
-Rcpp::List psbcSpeedUp_internal(const std::string& dataFile, const unsigned int p, const unsigned int q, Rcpp::List& hyperParFile, const arma::vec ini_beta, const arma::vec ini_tauSq, const arma::vec ini_h, const arma::uvec groupInd, const unsigned int nIter, const unsigned int nChains, const unsigned int thin, bool rw);
-RcppExport SEXP _psbcSpeedUp_psbcSpeedUp_internal(SEXP dataFileSEXP, SEXP pSEXP, SEXP qSEXP, SEXP hyperParFileSEXP, SEXP ini_betaSEXP, SEXP ini_tauSqSEXP, SEXP ini_hSEXP, SEXP groupIndSEXP, SEXP nIterSEXP, SEXP nChainsSEXP, SEXP thinSEXP, SEXP rwSEXP) {
+Rcpp::List psbcSpeedUp_internal(const arma::vec& datTime, const arma::uvec& datEvent, const arma::mat& x, const unsigned int p, const unsigned int q, Rcpp::List& hyperParFile, const arma::vec ini_beta, const arma::vec ini_tauSq, const arma::vec ini_h, const arma::uvec groupInd, const unsigned int nIter, const unsigned int nChains, const unsigned int thin, bool rw);
+RcppExport SEXP _psbcSpeedUp_psbcSpeedUp_internal(SEXP datTimeSEXP, SEXP datEventSEXP, SEXP xSEXP, SEXP pSEXP, SEXP qSEXP, SEXP hyperParFileSEXP, SEXP ini_betaSEXP, SEXP ini_tauSqSEXP, SEXP ini_hSEXP, SEXP groupIndSEXP, SEXP nIterSEXP, SEXP nChainsSEXP, SEXP thinSEXP, SEXP rwSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
-    Rcpp::traits::input_parameter< const std::string& >::type dataFile(dataFileSEXP);
+    Rcpp::traits::input_parameter< const arma::vec& >::type datTime(datTimeSEXP);
+    Rcpp::traits::input_parameter< const arma::uvec& >::type datEvent(datEventSEXP);
+    Rcpp::traits::input_parameter< const arma::mat& >::type x(xSEXP);
     Rcpp::traits::input_parameter< const unsigned int >::type p(pSEXP);
     Rcpp::traits::input_parameter< const unsigned int >::type q(qSEXP);
     Rcpp::traits::input_parameter< Rcpp::List& >::type hyperParFile(hyperParFileSEXP);
@@ -29,7 +31,7 @@ BEGIN_RCPP
     Rcpp::traits::input_parameter< const unsigned int >::type nChains(nChainsSEXP);
     Rcpp::traits::input_parameter< const unsigned int >::type thin(thinSEXP);
     Rcpp::traits::input_parameter< bool >::type rw(rwSEXP);
-    rcpp_result_gen = Rcpp::wrap(psbcSpeedUp_internal(dataFile, p, q, hyperParFile, ini_beta, ini_tauSq, ini_h, groupInd, nIter, nChains, thin, rw));
+    rcpp_result_gen = Rcpp::wrap(psbcSpeedUp_internal(datTime, datEvent, x, p, q, hyperParFile, ini_beta, ini_tauSq, ini_h, groupInd, nIter, nChains, thin, rw));
     return rcpp_result_gen;
 END_RCPP
 }

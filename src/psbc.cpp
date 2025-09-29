@@ -7,6 +7,8 @@ PSBC::PSBC()
 PSBC::~PSBC()
 {
 }
+
+// TODO: test if passing (const) addresses are more efficient
 // multiply (element-wise) a matrix to a expanded vector
 arma::mat PSBC::matProdVec(const arma::mat x, const arma::vec y)
 {
@@ -28,7 +30,7 @@ arma::vec PSBC::sumMatProdVec(const arma::mat x, const arma::vec y)
 // set a finite partition of the time axis to define the indicator matrices for risk sets and failure sets
 // in order to calculate the increment in the cumulative baseline hazard in each interval
 // also in order to construct the grouped data likelihood
-void PSBC::settingInterval_cpp(const arma::vec y, const arma::vec delta_, const arma::vec s_, const unsigned int J_, arma::mat &ind_d_, arma::mat &ind_r_, arma::mat &ind_r_d_, arma::vec &d_)
+void PSBC::settingInterval_cpp(const arma::vec& y, const arma::uvec& delta_, const arma::vec s_, const unsigned int J_, arma::mat &ind_d_, arma::mat &ind_r_, arma::mat &ind_r_d_, arma::vec &d_)
 {
     ind_d_ = ind_r_ = arma::zeros<arma::mat>(y.n_elem, J_);
 
@@ -38,10 +40,10 @@ void PSBC::settingInterval_cpp(const arma::vec y, const arma::vec delta_, const 
     arma::uvec case1ygeq;
 
     double smax = max(s_);
-    case0yleq = arma::find(delta_ == 0. && y <= smax);
-    case0ygeq = arma::find(delta_ == 0. && y > smax);
-    case1yleq = arma::find(delta_ == 1. && y <= smax);
-    case1ygeq = arma::find(delta_ == 1. && y > smax);
+    case0yleq = arma::find(delta_ == 0 && y <= smax);
+    case0ygeq = arma::find(delta_ == 0 && y > smax);
+    case1yleq = arma::find(delta_ == 1 && y <= smax);
+    case1ygeq = arma::find(delta_ == 1 && y > smax);
 
     int cen_j;
     for (unsigned int i = 0; i < case1yleq.n_elem; ++i)
@@ -163,7 +165,7 @@ double PSBC::updateLambda_GL_cpp(const unsigned int p, const unsigned int K, dou
 }
 
 // update coefficients of clinical variables via a rw MH sampler
-void PSBC::updateRP_clinical_cpp(const unsigned int p, const unsigned int q, const arma::mat x_, arma::mat &ind_r_, arma::mat &ind_d_, arma::mat &ind_r_d_, const unsigned int J_, arma::vec beta_prop_me_, double beta_prop_sd, arma::vec &xbeta_, arma::vec &be_, arma::vec &h_, arma::vec sd_be_, arma::uvec &sampleRPc_accept_)
+void PSBC::updateRP_clinical_cpp(const unsigned int p, const unsigned int q, const arma::mat& x_, arma::mat &ind_r_, arma::mat &ind_d_, arma::mat &ind_r_d_, const unsigned int J_, arma::vec beta_prop_me_, double beta_prop_sd, arma::vec &xbeta_, arma::vec &be_, arma::vec &h_, arma::vec sd_be_, arma::uvec &sampleRPc_accept_)
 {
     // select parameters to be updated; use p+j for clinical
     arma::uvec updatej = arma::randperm(q);
@@ -235,7 +237,7 @@ void PSBC::updateRP_clinical_cpp(const unsigned int p, const unsigned int q, con
 }
 
 // update coefficients of genomic variables via a MH sampler
-void PSBC::updateRP_genomic_cpp(const unsigned int p, const arma::mat x_, arma::mat &ind_r_, arma::mat &ind_d_, arma::mat &ind_r_d_, const unsigned int J_, arma::vec &xbeta_, arma::vec &be_, arma::vec &h_, arma::vec sd_be_, arma::uvec &sampleRPg_accept_)
+void PSBC::updateRP_genomic_cpp(const unsigned int p, const arma::mat& x_, arma::mat &ind_r_, arma::mat &ind_d_, arma::mat &ind_r_d_, const unsigned int J_, arma::vec &xbeta_, arma::vec &be_, arma::vec &h_, arma::vec sd_be_, arma::uvec &sampleRPg_accept_)
 {
     arma::uvec updatej = arma::randperm(p);
 
@@ -328,7 +330,7 @@ void PSBC::updateRP_genomic_cpp(const unsigned int p, const arma::mat x_, arma::
 }
 
 // update coefficients of genomic variables via a rw MH sampler, almost the same as updateRP_clinical_cpp()
-void PSBC::updateRP_genomic_rw_cpp(const unsigned int p, const arma::mat x_, arma::mat &ind_r_, arma::mat &ind_d_, arma::mat &ind_r_d_, const unsigned int J_, arma::vec beta_prop_me_, double beta_prop_sd, arma::vec &xbeta_, arma::vec &be_, arma::vec &h_, arma::vec sd_be_, arma::uvec &sampleRPg_accept_)
+void PSBC::updateRP_genomic_rw_cpp(const unsigned int p, const arma::mat& x_, arma::mat &ind_r_, arma::mat &ind_d_, arma::mat &ind_r_d_, const unsigned int J_, arma::vec beta_prop_me_, double beta_prop_sd, arma::vec &xbeta_, arma::vec &be_, arma::vec &h_, arma::vec sd_be_, arma::uvec &sampleRPg_accept_)
 {
     // select parameters to be updated; use p+j for clinical
     arma::uvec updatej = arma::randperm(p);

@@ -10,11 +10,12 @@ extern omp_lock_t RNGlock; /*defined in global.h*/
 #include <Rcpp.h>
 // [[Rcpp::plugins(openmp)]]
 
-using Utils::Chain_Data;
 
 // main function
 // (i) import data and parameters; (ii) MCMC algorithm; (iii) export estimates
-Rcpp::List drive(const std::string &dataFile, const unsigned int p, const unsigned int q, Rcpp::List &hyperParFile, 
+Rcpp::List drive(
+    const arma::vec& datTime, const arma::uvec& datEvent, const arma::mat& x,
+    const unsigned int p, const unsigned int q, Rcpp::List &hyperParFile, 
                  const arma::vec ini_beta, const arma::vec ini_tauSq, const arma::vec ini_h, const arma::uvec groupInd,
                  const unsigned int nIter, const unsigned int nChains, const unsigned int thin, bool rw)
 {
@@ -36,18 +37,8 @@ Rcpp::List drive(const std::string &dataFile, const unsigned int p, const unsign
 
     // Rcout << std::fixed << std::setprecision(11);
 
-    Chain_Data chainData; // this initialises the pointers and the strings to ""
-    // chainData.outFilePath = outFilePath;
-
     // PSBC myPSBC;
 
-    // read Data and format into usables
-    // Rcout << "Reading input files ... " <<  "\n";
-
-    Utils::formatData(dataFile, chainData.survData);
-    // Utils::readHyperPar(hyperParFile, chainData);
-
-    
     // get hyperparameters
     double eta0 = Rcpp::as<double>(hyperParFile["eta0"]);
     double kappa0 = Rcpp::as<double>(hyperParFile["kappa0"]);
@@ -61,20 +52,20 @@ Rcpp::List drive(const std::string &dataFile, const unsigned int p, const unsign
     double sigmaSq = Rcpp::as<double>(hyperParFile["sigmaSq"]);
     hyperParFile = Rcpp::List();  // Clear it by creating a new empty List
 
-    arma::vec dataTime = chainData.survData.data->col(0);
-    arma::vec dataDi = chainData.survData.data->col(1);
+    // arma::vec datTime = chainData.survData.data->col(0);
+    // arma::uvec datEvent = arma::conv_to<arma::ivec>(chainData.survData.data->col(1));
     arma::vec s0 = {0.}; // event times that are actually observed
-    s0(0) = 2. * max(dataTime) - max(dataTime.elem(arma::find(dataTime != max(dataTime))));
-    arma::vec s = arma::join_cols(arma::sort(arma::unique(dataTime.elem(arma::find(dataDi == 1.)))), s0);
+    s0(0) = 2. * max(datTime) - max(datTime.elem(arma::find(datTime != max(datTime))));
+    arma::vec s = arma::join_cols(arma::sort(arma::unique(datTime.elem(arma::find(datEvent == 1)))), s0);
     unsigned int J = s.n_elem;
     arma::uvec groupNo = arma::unique(groupInd);
     unsigned int K = groupNo.n_elem;
 
-    arma::mat ind_r_d = arma::zeros<arma::mat>(chainData.survData.data->n_rows, J);
-    arma::mat ind_r = arma::zeros<arma::mat>(chainData.survData.data->n_rows, J);
-    arma::mat ind_d = arma::zeros<arma::mat>(chainData.survData.data->n_rows, J);
+    arma::mat ind_r_d = arma::zeros<arma::mat>(datEvent.n_elem, J);
+    arma::mat ind_r = arma::zeros<arma::mat>(datEvent.n_elem, J);
+    arma::mat ind_d = arma::zeros<arma::mat>(datEvent.n_elem, J);
     arma::vec d = arma::sum(ind_d.t(), 1);
-    PSBC::settingInterval_cpp(dataTime, dataDi, s, J, ind_d, ind_r, ind_r_d, d);
+    PSBC::settingInterval_cpp(datTime, datEvent, s, J, ind_d, ind_r, ind_r_d, d);
 
     arma::vec beta_prop_me;
     arma::vec be = beta_prop_me = ini_beta;
@@ -103,7 +94,7 @@ Rcpp::List drive(const std::string &dataFile, const unsigned int p, const unsign
     arma::vec sd_be = arma::join_cols(sqrt(sigmaSq * tauSq_exp), sd_bePart2);
 
     // arma::uvec xId = arma::linspace<arma::uvec>(2, 1+p+q, p+q)
-    arma::mat x = chainData.survData.data->cols(arma::linspace<arma::uvec>(2, 1 + p + q, p + q));
+    // arma::mat x = chainData.survData.data->cols(arma::linspace<arma::uvec>(2, 1 + p + q, p + q));
     arma::vec xbeta = x * ini_beta;
 
     arma::vec be_normSq = arma::zeros<arma::vec>(K);
@@ -220,7 +211,9 @@ Rcpp::List drive(const std::string &dataFile, const unsigned int p, const unsign
 }
 
 // [[Rcpp::export]]
-Rcpp::List psbcSpeedUp_internal(const std::string &dataFile, const unsigned int p, const unsigned int q, Rcpp::List &hyperParFile, 
+Rcpp::List psbcSpeedUp_internal(
+    const arma::vec& datTime, const arma::uvec& datEvent, const arma::mat& x,
+    const unsigned int p, const unsigned int q, Rcpp::List &hyperParFile, 
                                 const arma::vec ini_beta, const arma::vec ini_tauSq, const arma::vec ini_h, const arma::uvec groupInd, const unsigned int nIter, const unsigned int nChains, const unsigned int thin, bool rw)
 {
     // int status {1};
@@ -228,7 +221,8 @@ Rcpp::List psbcSpeedUp_internal(const std::string &dataFile, const unsigned int 
     try
     {
         // status = drive(...);
-        beta_mcmc = drive(dataFile, p, q, hyperParFile, 
+        beta_mcmc = drive(datTime, datEvent, x,
+            p, q, hyperParFile, 
             ini_beta, ini_tauSq, ini_h, groupInd, nIter, nChains, thin, rw);
     }
     catch (const std::exception &e)
