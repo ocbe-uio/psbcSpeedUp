@@ -176,50 +176,66 @@ void PSBC::updateRP_clinical_cpp(const unsigned int p, const unsigned int q, con
     // select parameters to be updated; use p+j for clinical
     arma::uvec updatej = arma::randperm(q);
 
+    // declare relevant variables
+    // double loglh_ini = 0.;
+    // double loglh_prop = 0.;
+    // double logprior_prop = 0.;
+    // double logprior_ini = 0.;
+    // double logprop_prop = 0.;
+    // double logprop_ini = 0.;
+    // double logR = 0.;
+
+    // arma::vec be_prop;
+    // arma::vec exp_xbeta;
+    // arma::mat h_exp_xbeta_mat, h_exp_xbeta_prop_mat;
+    // arma::vec first_sum, second_sum;
+    // arma::vec first_sum_prop, second_sum_prop;
+    // arma::vec xbeta_prop, exp_xbeta_prop;
+
     unsigned int j = 0;
     for (unsigned int j_id = 0; j_id < q; ++j_id)
     {
         j = updatej(j_id);
-        be_prop = be_;
+        // be_prop = be_;
         xbeta_.elem(arma::find(xbeta_ > 700)).fill(700.);
-        exp_xbeta = arma::exp(xbeta_);
+        arma::vec exp_xbeta = arma::exp(xbeta_);
         // first_sum = arma::sum( matProdVec(ind_r_d_, exp_xbeta).t(), 1 );
-        first_sum = sumMatProdVec(ind_r_d_, exp_xbeta);
-        h_exp_xbeta_mat = -arma::kron(exp_xbeta, h_.t());
+        arma::vec first_sum = sumMatProdVec(ind_r_d_, exp_xbeta);
+        arma::mat h_exp_xbeta_mat = -arma::kron(exp_xbeta, h_.t());
         h_exp_xbeta_mat.elem(arma::find(h_exp_xbeta_mat > -1.0e-7)).fill(-1.0e-7);
         h_exp_xbeta_mat = arma::log(1.0 - arma::exp(h_exp_xbeta_mat));
-        second_sum = arma::sum((h_exp_xbeta_mat % ind_d_).t(), 1);
-        loglh_ini = arma::accu(-h_ % first_sum + second_sum);
+        arma::vec second_sum = arma::sum((h_exp_xbeta_mat % ind_d_).t(), 1);
+        double loglh_ini = arma::accu(-h_ % first_sum + second_sum);
 
         // clinical version:
         // be_prop( p + j ) = R::rnorm( beta_prop_me_(p+j), beta_prop_sd );
-        be_prop(p + j) = arma::randn(arma::distr_param(beta_prop_me_(p + j), beta_prop_sd));
-        xbeta_prop = xbeta_ - x_.col(p + j) * be_(p + j) + x_.col(p + j) * be_prop(p + j);
+        double be_prop = arma::randn(arma::distr_param(beta_prop_me_(p + j), beta_prop_sd));
+        arma::vec xbeta_prop = xbeta_ - x_.col(p + j) * be_(p + j) + x_.col(p + j) * be_prop;
         xbeta_prop.elem(arma::find(xbeta_prop > 700.)).fill(700.);
-        exp_xbeta_prop = arma::exp(xbeta_prop);
+        arma::vec exp_xbeta_prop = arma::exp(xbeta_prop);
         // first_sum_prop = arma::sum( matProdVec( ind_r_d_, exp_xbeta_prop ).t(), 1);
-        first_sum_prop = sumMatProdVec(ind_r_d_, exp_xbeta_prop);
+        arma::vec first_sum_prop = sumMatProdVec(ind_r_d_, exp_xbeta_prop);
 
-        h_exp_xbeta_prop_mat = -arma::kron(exp_xbeta_prop, h_.t());
+        arma::mat h_exp_xbeta_prop_mat = -arma::kron(exp_xbeta_prop, h_.t());
         h_exp_xbeta_prop_mat.elem(arma::find(h_exp_xbeta_prop_mat > -1.0e-7)).fill(-1.0e-7);
         h_exp_xbeta_prop_mat = arma::log(1.0 - arma::exp(h_exp_xbeta_prop_mat));
-        second_sum_prop = arma::sum((h_exp_xbeta_prop_mat % ind_d_).t(), 1);
+        arma::vec second_sum_prop = arma::sum((h_exp_xbeta_prop_mat % ind_d_).t(), 1);
 
-        loglh_prop = arma::accu(-h_ % first_sum_prop + second_sum_prop);
+        double loglh_prop = arma::accu(-h_ % first_sum_prop + second_sum_prop);
         /*logprior_prop = R::dnorm( be_prop(p+j), 0.0, sd_be_(p+j), true);
         logprior_ini = R::dnorm( be_(p+j), 0.0, sd_be_(p+j), true);
         logprop_prop = R::dnorm( be_prop(p+j), beta_prop_me_(p+j), beta_prop_sd, true);
         logprop_ini = R::dnorm( be_(p+j), beta_prop_me_(p+j), beta_prop_sd, true);*/
-        logprior_prop = arma::log_normpdf(be_prop(p + j), 0.0, sd_be_(p + j));
-        logprior_ini = arma::log_normpdf(be_(p + j), 0.0, sd_be_(p + j));
-        logprop_prop = arma::log_normpdf(be_prop(p + j), beta_prop_me_(p + j), beta_prop_sd);
-        logprop_ini = arma::log_normpdf(be_(p + j), beta_prop_me_(p + j), beta_prop_sd);
-        logR = loglh_prop - loglh_ini + logprior_prop - logprior_ini + logprop_ini - logprop_prop;
+        double logprior_prop = arma::log_normpdf(be_prop, 0.0, sd_be_(p + j));
+        double logprior_ini = arma::log_normpdf(be_(p + j), 0.0, sd_be_(p + j));
+        double logprop_prop = arma::log_normpdf(be_prop, beta_prop_me_(p + j), beta_prop_sd);
+        double logprop_ini = arma::log_normpdf(be_(p + j), beta_prop_me_(p + j), beta_prop_sd);
+        double logR = loglh_prop - loglh_ini + logprior_prop - logprior_ini + logprop_ini - logprop_prop;
 
         // if( log( R::runif(0., 1.) ) < logR )
         if (log(arma::randu()) < logR)
         {
-            be_(p + j) = be_prop(p + j);
+            be_(p + j) = be_prop;
             xbeta_ = xbeta_prop;
             sampleRPc_accept_(j)++;
         }
@@ -236,83 +252,83 @@ void PSBC::updateRP_genomic_cpp(const unsigned int p, const arma::mat x_, arma::
     {
         j = updatej(j_id);
         xbeta_.elem(arma::find(xbeta_ > 700)).fill(700.);
-        exp_xbeta = arma::exp(xbeta_);
-        x_exp_xbeta = x_.col(j) % exp_xbeta;
+        arma::vec exp_xbeta = arma::exp(xbeta_);
+        arma::vec x_exp_xbeta = x_.col(j) % exp_xbeta;
         // D1_1st = - h_ % arma::sum( matProdVec( ind_r_d_, x_exp_xbeta ).t(), 1 );
-        D1_1st = -h_ % sumMatProdVec(ind_r_d_, x_exp_xbeta);
+        arma::vec D1_1st = -h_ % sumMatProdVec(ind_r_d_, x_exp_xbeta);
 
-        h_exp_xbeta_mat = -arma::kron(exp_xbeta, h_.t());
+        arma::mat h_exp_xbeta_mat = -arma::kron(exp_xbeta, h_.t());
         h_exp_xbeta_mat.elem(arma::find(h_exp_xbeta_mat > -1.0e-7)).fill(-1.0e-7);
-        exp_h_exp_xbeta_mat = arma::exp(h_exp_xbeta_mat);
-        D1_2nd_den = 1. - exp_h_exp_xbeta_mat;
-        D1_2nd_num = matProdVec(exp_h_exp_xbeta_mat, x_exp_xbeta);
-        D1_2nd = h_ % arma::sum((D1_2nd_num / D1_2nd_den % ind_d_).t(), 1);
-        D1 = arma::sum(D1_1st + D1_2nd) - 1. / sd_be_(j) / sd_be_(j) * be_(j);
+        arma::mat exp_h_exp_xbeta_mat = arma::exp(h_exp_xbeta_mat);
+        arma::mat D1_2nd_den = 1. - exp_h_exp_xbeta_mat;
+        arma::mat D1_2nd_num = matProdVec(exp_h_exp_xbeta_mat, x_exp_xbeta);
+        arma::vec D1_2nd = h_ % arma::sum((D1_2nd_num / D1_2nd_den % ind_d_).t(), 1);
+        double D1 = arma::sum(D1_1st + D1_2nd) - 1. / sd_be_(j) / sd_be_(j) * be_(j);
 
-        x_sq_exp_xbeta = x_.col(j) % x_.col(j) % exp_xbeta;
+        arma::vec x_sq_exp_xbeta = x_.col(j) % x_.col(j) % exp_xbeta;
         // D2_1st = - h_ % arma::sum( matProdVec( ind_r_d_, x_sq_exp_xbeta ).t(), 1 );
-        D2_1st = -h_ % sumMatProdVec(ind_r_d_, x_sq_exp_xbeta);
-        D2_2nd_den = D1_2nd_den % D1_2nd_den;
-        D2_2nd_num = matProdVec(exp_h_exp_xbeta_mat, x_sq_exp_xbeta) % (1. - exp_h_exp_xbeta_mat + h_exp_xbeta_mat);
-        D2_2nd = h_ % arma::sum((D2_2nd_num / D2_2nd_den % ind_d_).t(), 1);
-        D2 = arma::accu(D2_1st + D2_2nd) - 1. / sd_be_(j) / sd_be_(j);
+        arma::vec D2_1st = -h_ % sumMatProdVec(ind_r_d_, x_sq_exp_xbeta);
+        arma::mat D2_2nd_den = D1_2nd_den % D1_2nd_den;
+        arma::mat D2_2nd_num = matProdVec(exp_h_exp_xbeta_mat, x_sq_exp_xbeta) % (1. - exp_h_exp_xbeta_mat + h_exp_xbeta_mat);
+        arma::vec D2_2nd = h_ % arma::sum((D2_2nd_num / D2_2nd_den % ind_d_).t(), 1);
+        double D2 = arma::accu(D2_1st + D2_2nd) - 1. / sd_be_(j) / sd_be_(j);
 
-        be_prop_me = be_(j) - D1 / D2;
-        be_prop_sd = 2.4 / sqrt(-D2);
-        be_prop = be_;
+        double be_prop_me = be_(j) - D1 / D2;
+        double be_prop_sd = 2.4 / sqrt(-D2);
+        // be_prop = be_;
 
         // genomic version:
-        // be_prop(j) = R::rnorm( be_prop_me, be_prop_sd );
-        be_prop(j) = arma::randn(arma::distr_param(be_prop_me, be_prop_sd));
-        xbeta_prop = xbeta_ - x_.col(j) * be_(j) + x_.col(j) * be_prop(j);
+        // be_prop = R::rnorm( be_prop_me, be_prop_sd );
+        double be_prop = arma::randn(arma::distr_param(be_prop_me, be_prop_sd));
+        arma::vec xbeta_prop = xbeta_ - x_.col(j) * be_(j) + x_.col(j) * be_prop;
         xbeta_prop.elem(arma::find(xbeta_prop > 700)).fill(700.);
-        exp_xbeta_prop = arma::exp(xbeta_prop);
-        x_exp_xbeta_prop = x_.col(j) % exp_xbeta_prop;
+        arma::vec exp_xbeta_prop = arma::exp(xbeta_prop);
+        arma::vec x_exp_xbeta_prop = x_.col(j) % exp_xbeta_prop;
         // D1_1st_prop = - h_ % arma::sum( matProdVec( ind_r_d_, x_exp_xbeta_prop ).t(), 1 );
-        D1_1st_prop = -h_ % sumMatProdVec(ind_r_d_, x_exp_xbeta_prop);
+        arma::vec D1_1st_prop = -h_ % sumMatProdVec(ind_r_d_, x_exp_xbeta_prop);
 
-        h_exp_xbeta_prop_mat = -arma::kron(exp_xbeta_prop, h_.t());
+        arma::mat h_exp_xbeta_prop_mat = -arma::kron(exp_xbeta_prop, h_.t());
         h_exp_xbeta_prop_mat.elem(arma::find(h_exp_xbeta_prop_mat > -1.0e-7)).fill(-1.0e-7);
-        exp_h_exp_xbeta_prop_mat = arma::exp(h_exp_xbeta_prop_mat);
-        D1_2nd_den_prop = 1. - exp_h_exp_xbeta_prop_mat;
-        D1_2nd_num_prop = matProdVec(exp_h_exp_xbeta_prop_mat, x_exp_xbeta_prop);
-        D1_2nd_prop = h_ % arma::sum((D1_2nd_num_prop / D1_2nd_den_prop % ind_d_).t(), 1);
-        D1_prop = arma::accu(D1_1st_prop + D1_2nd_prop) - 1. / sd_be_(j) / sd_be_(j) * be_prop(j);
+        arma::mat exp_h_exp_xbeta_prop_mat = arma::exp(h_exp_xbeta_prop_mat);
+        arma::mat D1_2nd_den_prop = 1. - exp_h_exp_xbeta_prop_mat;
+        arma::mat D1_2nd_num_prop = matProdVec(exp_h_exp_xbeta_prop_mat, x_exp_xbeta_prop);
+        arma::vec D1_2nd_prop = h_ % arma::sum((D1_2nd_num_prop / D1_2nd_den_prop % ind_d_).t(), 1);
+        double D1_prop = arma::accu(D1_1st_prop + D1_2nd_prop) - 1. / sd_be_(j) / sd_be_(j) * be_prop;
 
-        x_sq_exp_xbeta_prop = x_.col(j) % x_.col(j) % exp_xbeta_prop;
+        arma::vec x_sq_exp_xbeta_prop = x_.col(j) % x_.col(j) % exp_xbeta_prop;
         // D2_1st_prop = -h_ % arma::sum( matProdVec( ind_r_d_, x_sq_exp_xbeta_prop ).t(), 1);
-        D2_1st_prop = -h_ % sumMatProdVec(ind_r_d_, x_sq_exp_xbeta_prop);
-        D2_2nd_den_prop = D1_2nd_den_prop % D1_2nd_den_prop;
-        D2_2nd_num_prop = matProdVec(exp_h_exp_xbeta_prop_mat, x_sq_exp_xbeta_prop) % (1. - exp_h_exp_xbeta_prop_mat + h_exp_xbeta_prop_mat);
-        D2_2nd_prop = h_ % arma::sum((D2_2nd_num_prop / D2_2nd_den_prop, ind_d_).t(), 1);
-        D2_prop = arma::accu(D2_1st_prop + D2_2nd_prop) - 1. / sd_be_(j) / sd_be_(j);
-        be_prop_me_ini = be_prop(j) - D1_prop / D2_prop;
-        be_prop_sd_ini = 2.4 / sqrt(-D2_prop);
+        arma::vec D2_1st_prop = -h_ % sumMatProdVec(ind_r_d_, x_sq_exp_xbeta_prop);
+        arma::mat D2_2nd_den_prop = D1_2nd_den_prop % D1_2nd_den_prop;
+        arma::mat D2_2nd_num_prop = matProdVec(exp_h_exp_xbeta_prop_mat, x_sq_exp_xbeta_prop) % (1. - exp_h_exp_xbeta_prop_mat + h_exp_xbeta_prop_mat);
+        arma::vec D2_2nd_prop = h_ % arma::sum((D2_2nd_num_prop / D2_2nd_den_prop, ind_d_).t(), 1);
+        double D2_prop = arma::accu(D2_1st_prop + D2_2nd_prop) - 1. / sd_be_(j) / sd_be_(j);
+        double be_prop_me_ini = be_prop - D1_prop / D2_prop;
+        double be_prop_sd_ini = 2.4 / sqrt(-D2_prop);
 
         // first_sum = arma::sum( matProdVec( ind_r_d_, exp_xbeta ).t(), 1 );
-        first_sum = sumMatProdVec(ind_r_d_, exp_xbeta);
-        second_sum = arma::sum((arma::log(D1_2nd_den) % ind_d_).t(), 1);
+        arma::vec first_sum = sumMatProdVec(ind_r_d_, exp_xbeta);
+        arma::vec second_sum = arma::sum((arma::log(D1_2nd_den) % ind_d_).t(), 1);
 
-        loglh_ini = arma::accu(-h_ % first_sum + second_sum);
+        double loglh_ini = arma::accu(-h_ % first_sum + second_sum);
         // first_sum_prop = arma::sum( matProdVec( ind_r_d_, exp_xbeta_prop ).t(), 1) ;
-        first_sum_prop = sumMatProdVec(ind_r_d_, exp_xbeta_prop);
-        second_sum_prop = arma::sum((arma::log(D1_2nd_den_prop) % ind_d_).t(), 1);
-        loglh_prop = arma::accu(-h_ % first_sum_prop + second_sum_prop);
+        arma::vec first_sum_prop = sumMatProdVec(ind_r_d_, exp_xbeta_prop);
+        arma::vec second_sum_prop = arma::sum((arma::log(D1_2nd_den_prop) % ind_d_).t(), 1);
+        double loglh_prop = arma::accu(-h_ % first_sum_prop + second_sum_prop);
 
-        /*logprior_prop = R::dnorm( be_prop(j), 0.0, sd_be_(j), true);
+        /*logprior_prop = R::dnorm( be_prop, 0.0, sd_be_(j), true);
         logprior_ini = R::dnorm( be_(j), 0.0, sd_be_(j), true);
-        logprop_prop = R::dnorm( be_prop(j), be_prop_me_ini, be_prop_sd_ini, true);
+        logprop_prop = R::dnorm( be_prop, be_prop_me_ini, be_prop_sd_ini, true);
         logprop_ini = R::dnorm( be_(j), be_prop_me, be_prop_sd, true);*/
-        logprior_prop = arma::log_normpdf(be_prop(j), 0.0, sd_be_(j));
-        logprior_ini = arma::log_normpdf(be_(j), 0.0, sd_be_(j));
-        logprop_prop = arma::log_normpdf(be_prop(j), be_prop_me_ini, be_prop_sd_ini);
-        logprop_ini = arma::log_normpdf(be_(j), be_prop_me, be_prop_sd);
-        logR = loglh_prop - loglh_ini + logprior_prop - logprior_ini + logprop_ini - logprop_prop;
+        double logprior_prop = arma::log_normpdf(be_prop, 0.0, sd_be_(j));
+        double logprior_ini = arma::log_normpdf(be_(j), 0.0, sd_be_(j));
+        double logprop_prop = arma::log_normpdf(be_prop, be_prop_me_ini, be_prop_sd_ini);
+        double logprop_ini = arma::log_normpdf(be_(j), be_prop_me, be_prop_sd);
+        double logR = loglh_prop - loglh_ini + logprior_prop - logprior_ini + logprop_ini - logprop_prop;
 
         // if( log( R::runif(0., 1.) ) < logR )
         if (log(arma::randu()) < logR)
         {
-            be_(j) = be_prop(j);
+            be_(j) = be_prop;
             xbeta_ = xbeta_prop;
             sampleRPg_accept_(j) = sampleRPg_accept_(j) + 1;
         }
@@ -329,46 +345,46 @@ void PSBC::updateRP_genomic_rw_cpp(const unsigned int p, const arma::mat x_, arm
     for (unsigned int j_id = 0; j_id < p; ++j_id)
     {
         j = updatej(j_id);
-        be_prop = be_;
+        // be_prop = be_;
         xbeta_.elem(arma::find(xbeta_ > 700)).fill(700.);
-        exp_xbeta = arma::exp(xbeta_);
+        arma::vec exp_xbeta = arma::exp(xbeta_);
         // first_sum = arma::sum( matProdVec(ind_r_d_, exp_xbeta).t(), 1 );
-        first_sum = sumMatProdVec(ind_r_d_, exp_xbeta);
-        h_exp_xbeta_mat = -arma::kron(exp_xbeta, h_.t());
+        arma::vec first_sum = sumMatProdVec(ind_r_d_, exp_xbeta);
+        arma::vec h_exp_xbeta_mat = -arma::kron(exp_xbeta, h_.t());
         h_exp_xbeta_mat.elem(arma::find(h_exp_xbeta_mat > -1.0e-7)).fill(-1.0e-7);
         h_exp_xbeta_mat = arma::log(1.0 - arma::exp(h_exp_xbeta_mat));
-        second_sum = arma::sum((h_exp_xbeta_mat % ind_d_).t(), 1);
-        loglh_ini = arma::accu(-h_ % first_sum + second_sum);
+        arma::vec second_sum = arma::sum((h_exp_xbeta_mat % ind_d_).t(), 1);
+        double loglh_ini = arma::accu(-h_ % first_sum + second_sum);
 
         // clinical version:
         // be_prop( j ) = R::rnorm( beta_prop_me_(j), beta_prop_sd );
-        be_prop(j) = arma::randn(arma::distr_param(beta_prop_me_(j), beta_prop_sd));
-        xbeta_prop = xbeta_ - x_.col(j) * be_(j) + x_.col(j) * be_prop(j);
+        double be_prop = arma::randn(arma::distr_param(beta_prop_me_(j), beta_prop_sd));
+        arma::vec xbeta_prop = xbeta_ - x_.col(j) * be_(j) + x_.col(j) * be_prop;
         xbeta_prop.elem(arma::find(xbeta_prop > 700)).fill(700.);
-        exp_xbeta_prop = arma::exp(xbeta_prop);
+        arma::vec exp_xbeta_prop = arma::exp(xbeta_prop);
         // first_sum_prop = arma::sum( matProdVec( ind_r_d_, exp_xbeta_prop ).t(), 1);
-        first_sum_prop = sumMatProdVec(ind_r_d_, exp_xbeta_prop);
+        arma::vec first_sum_prop = sumMatProdVec(ind_r_d_, exp_xbeta_prop);
 
-        h_exp_xbeta_prop_mat = -arma::kron(exp_xbeta_prop, h_.t());
+        arma::vec h_exp_xbeta_prop_mat = -arma::kron(exp_xbeta_prop, h_.t());
         h_exp_xbeta_prop_mat.elem(arma::find(h_exp_xbeta_prop_mat > -1.0e-7)).fill(-1.0e-7);
         h_exp_xbeta_prop_mat = 1.0 - arma::exp(h_exp_xbeta_prop_mat);
-        second_sum_prop = arma::sum((arma::log(h_exp_xbeta_prop_mat) % ind_d_).t(), 1);
+        arma::vec second_sum_prop = arma::sum((arma::log(h_exp_xbeta_prop_mat) % ind_d_).t(), 1);
 
-        loglh_prop = arma::accu(-h_ % first_sum_prop + second_sum_prop);
-        /*logprior_prop = R::dnorm( be_prop(j), 0.0, sd_be_(j), true);
+        double loglh_prop = arma::accu(-h_ % first_sum_prop + second_sum_prop);
+        /*logprior_prop = R::dnorm( be_prop, 0.0, sd_be_(j), true);
         logprior_ini = R::dnorm( be_(j), 0.0, sd_be_(j), true);
-        logprop_prop = R::dnorm( be_prop(j), beta_prop_me_(j), beta_prop_sd, true);
+        logprop_prop = R::dnorm( be_prop, beta_prop_me_(j), beta_prop_sd, true);
         logprop_ini = R::dnorm( be_(j), beta_prop_me_(j), beta_prop_sd, true);*/
-        logprior_prop = arma::log_normpdf(be_prop(j), 0.0, sd_be_(j));
-        logprior_ini = arma::log_normpdf(be_(j), 0.0, sd_be_(j));
-        logprop_prop = arma::log_normpdf(be_prop(j), beta_prop_me_(j), beta_prop_sd);
-        logprop_ini = arma::log_normpdf(be_(j), beta_prop_me_(j), beta_prop_sd);
-        logR = loglh_prop - loglh_ini + logprior_prop - logprior_ini + logprop_ini - logprop_prop;
+        double logprior_prop = arma::log_normpdf(be_prop, 0.0, sd_be_(j));
+        double logprior_ini = arma::log_normpdf(be_(j), 0.0, sd_be_(j));
+        double logprop_prop = arma::log_normpdf(be_prop, beta_prop_me_(j), beta_prop_sd);
+        double logprop_ini = arma::log_normpdf(be_(j), beta_prop_me_(j), beta_prop_sd);
+        double logR = loglh_prop - loglh_ini + logprior_prop - logprior_ini + logprop_ini - logprop_prop;
 
         // if( log( R::runif(0., 1.) ) < logR )
         if (log(arma::randu()) < logR)
         {
-            be_(j) = be_prop(j);
+            be_(j) = be_prop;
             xbeta_ = xbeta_prop;
             sampleRPg_accept_(j)++;
         }

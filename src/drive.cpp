@@ -21,7 +21,7 @@ using Utils::Chain_Data;
 
 // main function
 // (i) import data and parameters; (ii) MCMC algorithm; (iii) export estimates
-Rcpp::List drive(const std::string &dataFile, const unsigned int p, const unsigned int q, const Rcpp::List &hyperParFile, const std::string &outFilePath,
+Rcpp::List drive(const std::string &dataFile, const unsigned int p, const unsigned int q, Rcpp::List &hyperParFile, const std::string &outFilePath,
                  const arma::vec ini_beta, const arma::vec ini_tauSq, const arma::vec ini_h, const arma::uvec groupInd,
                  const unsigned int nIter, const unsigned int nChains, const unsigned int thin, bool rw)
 {
@@ -46,7 +46,7 @@ Rcpp::List drive(const std::string &dataFile, const unsigned int p, const unsign
     Chain_Data chainData; // this initialises the pointers and the strings to ""
     chainData.outFilePath = outFilePath;
 
-    PSBC myPSBC;
+    // PSBC myPSBC;
 
     // read Data and format into usables
     // Rcout << "Reading input files ... " <<  "\n";
@@ -66,6 +66,7 @@ Rcpp::List drive(const std::string &dataFile, const unsigned int p, const unsign
     double lambdaSq = Rcpp::as<double>(hyperParFile["lambdaSq"]);
     // double rate = Rcpp::as<double>(hyperPar["rate"]);
     double sigmaSq = Rcpp::as<double>(hyperParFile["sigmaSq"]);
+    hyperParFile = Rcpp::List();  // Clear it by creating a new empty List
 
     arma::vec dataTime = chainData.survData.data->col(0);
     arma::vec dataDi = chainData.survData.data->col(1);
@@ -78,7 +79,7 @@ Rcpp::List drive(const std::string &dataFile, const unsigned int p, const unsign
 
     ind_r_d = ind_r = ind_d = arma::zeros<arma::mat>(chainData.survData.data->n_rows, J);
     d = arma::sum(ind_d.t(), 1);
-    myPSBC.settingInterval_cpp(dataTime, dataDi, s, J, ind_d, ind_r, ind_r_d, d);
+    PSBC::settingInterval_cpp(dataTime, dataDi, s, J, ind_d, ind_r, ind_r_d, d);
 
     arma::vec beta_prop_me;
     be = beta_prop_me = ini_beta;
@@ -154,15 +155,15 @@ Rcpp::List drive(const std::string &dataFile, const unsigned int p, const unsign
         // Updating regression coefficients and hyperparameters
 
         if (q > 0)
-            myPSBC.updateRP_clinical_cpp(p, q, x, ind_r, ind_d, ind_r_d, J, beta_prop_me, beta_prop_sd, xbeta, be, h, sd_be, sampleRPc_accept);
+            PSBC::updateRP_clinical_cpp(p, q, x, ind_r, ind_d, ind_r_d, J, beta_prop_me, beta_prop_sd, xbeta, be, h, sd_be, sampleRPc_accept);
 
         if (rw)
         {
-            myPSBC.updateRP_genomic_rw_cpp(p, x, ind_r, ind_d, ind_r_d, J, beta_prop_me, beta_prop_sd, xbeta, be, h, sd_be, sampleRPg_accept);
+            PSBC::updateRP_genomic_rw_cpp(p, x, ind_r, ind_d, ind_r_d, J, beta_prop_me, beta_prop_sd, xbeta, be, h, sd_be, sampleRPg_accept);
         }
         else
         {
-            myPSBC.updateRP_genomic_cpp(p, x, ind_r, ind_d, ind_r_d, J, xbeta, be, h, sd_be, sampleRPg_accept);
+            PSBC::updateRP_genomic_cpp(p, x, ind_r, ind_d, ind_r_d, J, xbeta, be, h, sd_be, sampleRPg_accept);
         }
 
         //        if( q > 0 )
@@ -173,12 +174,12 @@ Rcpp::List drive(const std::string &dataFile, const unsigned int p, const unsign
         //            be_normSq = be % be;
         //        }
 
-        h = myPSBC.updateBH_cpp(ind_r_d, hPriorSh, d, c0, J, xbeta);
+        h = PSBC::updateBH_cpp(ind_r_d, hPriorSh, d, c0, J, xbeta);
 
-        tauSq = myPSBC.updateTau_GL_cpp(lambdaSq, sigmaSq, be_normSq);
+        tauSq = PSBC::updateTau_GL_cpp(lambdaSq, sigmaSq, be_normSq);
 
-        sigmaSq = myPSBC.updateSigma_GL_cpp(p, be_normSq, tauSq);
-        lambdaSq = myPSBC.updateLambda_GL_cpp(p, K, r, delta, tauSq);
+        sigmaSq = PSBC::updateSigma_GL_cpp(p, be_normSq, tauSq);
+        lambdaSq = PSBC::updateLambda_GL_cpp(p, K, r, delta, tauSq);
 
         //        if( q > 0 )
         //        {
@@ -224,7 +225,7 @@ Rcpp::List drive(const std::string &dataFile, const unsigned int p, const unsign
 }
 
 // [[Rcpp::export]]
-Rcpp::List psbcSpeedUp_internal(const std::string &dataFile, const unsigned int p, const unsigned int q, const Rcpp::List &hyperParFile, const std::string &outFilePath,
+Rcpp::List psbcSpeedUp_internal(const std::string &dataFile, const unsigned int p, const unsigned int q, Rcpp::List &hyperParFile, const std::string &outFilePath,
                                 const arma::vec ini_beta, const arma::vec ini_tauSq, const arma::vec ini_h, const arma::uvec groupInd, const unsigned int nIter, const unsigned int nChains, const unsigned int thin, bool rw)
 {
     // int status {1};
