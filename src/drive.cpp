@@ -15,7 +15,7 @@ extern omp_lock_t RNGlock; /*defined in global.h*/
 Rcpp::List drive(
     const arma::vec& datTime, const arma::uvec& datEvent, const arma::mat& x,
     const unsigned int p, const unsigned int q, Rcpp::List &hyperParFile, 
-                 const arma::vec ini_beta, const arma::vec ini_tauSq, const arma::vec ini_h, const arma::uvec groupInd,
+                 arma::vec beta, arma::vec tauSq, arma::vec h, const arma::uvec groupInd,
                  const unsigned int nIter, const unsigned int nChains, const unsigned int thin, bool rw)
 {
 
@@ -39,16 +39,16 @@ Rcpp::List drive(
     // PSBC myPSBC;
 
     // get hyperparameters
-    double eta0 = Rcpp::as<double>(hyperParFile["eta0"]);
-    double kappa0 = Rcpp::as<double>(hyperParFile["kappa0"]);
-    double c0 = Rcpp::as<double>(hyperParFile["c0"]);
-    double r = Rcpp::as<double>(hyperParFile["r"]);
-    double delta = Rcpp::as<double>(hyperParFile["delta"]);
-    double beta_prop_sd = sqrt(Rcpp::as<double>(hyperParFile["beta_prop_var"]));
-    double beta_clin_sd = sqrt(Rcpp::as<double>(hyperParFile["beta_clin_var"]));
-    double lambdaSq = Rcpp::as<double>(hyperParFile["lambdaSq"]);
+    double hyperPar_eta0 = Rcpp::as<double>(hyperParFile["eta0"]);
+    double hyperPar_kappa0 = Rcpp::as<double>(hyperParFile["kappa0"]);
+    double hyperPar_c0 = Rcpp::as<double>(hyperParFile["c0"]);
+    double hyperPar_r = Rcpp::as<double>(hyperParFile["r"]);
+    double hyperPar_delta = Rcpp::as<double>(hyperParFile["delta"]);
+    double hyperPar_beta_prop_sd = sqrt(Rcpp::as<double>(hyperParFile["beta_prop_var"]));
+    double hyperPar_beta_clin_sd = sqrt(Rcpp::as<double>(hyperParFile["beta_clin_var"]));
+    double hyperPar_lambdaSq = Rcpp::as<double>(hyperParFile["lambdaSq"]);
     // double rate = Rcpp::as<double>(hyperPar["rate"]);
-    double sigmaSq = Rcpp::as<double>(hyperParFile["sigmaSq"]);
+    double hyperPar_sigmaSq = Rcpp::as<double>(hyperParFile["sigmaSq"]);
     hyperParFile = Rcpp::List();  // Clear it by creating a new empty List
 
     // arma::vec datTime = chainData.survData.data->col(0);
@@ -66,17 +66,16 @@ Rcpp::List drive(
     arma::vec d = arma::sum(ind_d.t(), 1);
     PSBC::settingInterval_cpp(datTime, datEvent, s, J, ind_d, ind_r, ind_r_d, d);
 
-    arma::vec beta_prop_me;
-    arma::vec be = beta_prop_me = ini_beta;
+    arma::vec beta_prop_me = beta;
     arma::mat beta_p = arma::zeros<arma::mat>((int)(nIter / thin) + 1, p + q);
-    beta_p.row(0) = ini_beta.t();
+    beta_p.row(0) = beta.t();
 
     // double lambdaSq;
     // lambdaSq = chainData.lambdaSq;
     // double sigmaSq;
     // sigmaSq = chainData.sigmaSq;
-    arma::vec tauSq = ini_tauSq;
-    arma::vec h = ini_h;
+    // arma::vec tauSq = ini_tauSq;
+    // arma::vec h = ini_h;
 
     // tausq: only for genomic variables
     arma::vec tauSq_exp = arma::zeros<arma::vec>(p);
@@ -89,23 +88,23 @@ Rcpp::List drive(
     // double beta_prop_sd = sqrt(chainData.beta_prop_var);
     // double beta_clin_sd = sqrt(chainData.beta_clin_var);
     arma::vec sd_bePart2 = arma::zeros<arma::vec>(q);
-    sd_bePart2.fill(beta_clin_sd);
-    arma::vec sd_be = arma::join_cols(sqrt(sigmaSq * tauSq_exp), sd_bePart2);
+    sd_bePart2.fill(hyperPar_beta_clin_sd);
+    arma::vec sd_be = arma::join_cols(sqrt(hyperPar_sigmaSq * tauSq_exp), sd_bePart2);
 
     // arma::uvec xId = arma::linspace<arma::uvec>(2, 1+p+q, p+q)
     // arma::mat x = chainData.survData.data->cols(arma::linspace<arma::uvec>(2, 1 + p + q, p + q));
-    arma::vec xbeta = x * ini_beta;
+    arma::vec xbeta = x * beta;
 
     arma::vec be_normSq = arma::zeros<arma::vec>(K);
     for (unsigned int i = 0; i < K; ++i)
-        be_normSq(i) = arma::accu(ini_beta.elem(arma::find(groupInd == groupNo(i))) % ini_beta.elem(arma::find(groupInd == groupNo(i))));
+        be_normSq(i) = arma::accu(beta.elem(arma::find(groupInd == groupNo(i))) % beta.elem(arma::find(groupInd == groupNo(i))));
 
     if (!any(be_normSq))
         be_normSq(0) = 0.1;
 
     arma::vec alpha0 = arma::zeros<arma::vec>(1 + J);
     // H_star(j) = eta0 * arma::pow( s, kappa0 );
-    alpha0.subvec(1, J) = c0 * eta0 * arma::pow(s, kappa0);
+    alpha0.subvec(1, J) = hyperPar_c0 * hyperPar_eta0 * arma::pow(s, hyperPar_kappa0);
     arma::vec hPriorSh = arma::diff(alpha0);
 
     // save mcmc intermediate estimates
@@ -140,39 +139,39 @@ Rcpp::List drive(
         // Updating regression coefficients and hyperparameters
 
         if (q > 0)
-            PSBC::updateRP_clinical_cpp(p, q, x, ind_r, ind_d, ind_r_d, J, beta_prop_me, beta_prop_sd, xbeta, be, h, sd_be, sampleRPc_accept);
+            PSBC::updateRP_clinical_cpp(p, q, x, ind_r, ind_d, ind_r_d, J, beta_prop_me, hyperPar_beta_prop_sd, xbeta, beta, h, sd_be, sampleRPc_accept);
 
         if (rw)
         {
-            PSBC::updateRP_genomic_rw_cpp(p, x, ind_r, ind_d, ind_r_d, J, beta_prop_me, beta_prop_sd, xbeta, be, h, sd_be, sampleRPg_accept);
+            PSBC::updateRP_genomic_rw_cpp(p, x, ind_r, ind_d, ind_r_d, J, beta_prop_me, hyperPar_beta_prop_sd, xbeta, beta, h, sd_be, sampleRPg_accept);
         }
         else
         {
-            PSBC::updateRP_genomic_cpp(p, x, ind_r, ind_d, ind_r_d, J, xbeta, be, h, sd_be, sampleRPg_accept);
+            PSBC::updateRP_genomic_cpp(p, x, ind_r, ind_d, ind_r_d, J, xbeta, beta, h, sd_be, sampleRPg_accept);
         }
 
         //        if( q > 0 )
         //        {
         for (unsigned int i = 0; i < K; ++i)
-            be_normSq(i) = arma::accu(be.elem(arma::find(groupInd == groupNo(i))) % be.elem(arma::find(groupInd == groupNo(i))));
+            be_normSq(i) = arma::accu(beta.elem(arma::find(groupInd == groupNo(i))) % beta.elem(arma::find(groupInd == groupNo(i))));
         //        } else {
-        //            be_normSq = be % be;
+        //            be_normSq = beta % beta;
         //        }
 
-        h = PSBC::updateBH_cpp(ind_r_d, hPriorSh, d, c0, J, xbeta);
+        h = PSBC::updateBH_cpp(ind_r_d, hPriorSh, d, hyperPar_c0, J, xbeta);
 
-        tauSq = PSBC::updateTau_GL_cpp(lambdaSq, sigmaSq, be_normSq);
+        tauSq = PSBC::updateTau_GL_cpp(hyperPar_lambdaSq, hyperPar_sigmaSq, be_normSq);
 
-        sigmaSq = PSBC::updateSigma_GL_cpp(p, be_normSq, tauSq);
-        lambdaSq = PSBC::updateLambda_GL_cpp(p, K, r, delta, tauSq);
+        hyperPar_sigmaSq = PSBC::updateSigma_GL_cpp(p, be_normSq, tauSq);
+        hyperPar_lambdaSq = PSBC::updateLambda_GL_cpp(p, K, hyperPar_r, hyperPar_delta, tauSq);
 
         //        if( q > 0 )
         //        {
         for (unsigned int i = 0; i < K; ++i)
             tauSq_exp.elem(arma::find(groupInd == groupNo(i))).fill(tauSq(i));
 
-        sd_bePart2.fill(beta_clin_sd);
-        sd_be = arma::join_cols(sqrt(sigmaSq * tauSq_exp), sd_bePart2);
+        sd_bePart2.fill(hyperPar_beta_clin_sd);
+        sd_be = arma::join_cols(sqrt(hyperPar_sigmaSq * tauSq_exp), sd_bePart2);
         //        } else {
         //            tauSq_exp = tauSq;
         //            sd_be = sqrt(sigmaSq * tauSq_exp);
@@ -182,18 +181,18 @@ Rcpp::List drive(
         if (M % thin == 0)
         {
             ++j;
-            beta_p.row(j) = be.t();
+            beta_p.row(j) = beta.t();
             h_p.row(j) = h.t();
             tauSq_p.row(j) = tauSq.t();
-            sigmaSq_p(j) = sigmaSq;
-            lambdaSq_p(j) = lambdaSq;
+            sigmaSq_p(j) = hyperPar_sigmaSq;
+            lambdaSq_p(j) = hyperPar_lambdaSq;
         }
 
         // adaptve jumping rule
         if (j > 20)
             for (unsigned int jj = 0; jj < p + q; ++jj)
-                if (ini_beta(jj) == beta_p(j - 20, jj))
-                    beta_prop_me(jj) = be(jj);
+                if (beta(jj) == beta_p(j - 20, jj))
+                    beta_prop_me(jj) = beta(jj);
     }
 
     arma::uvec accept_rate = join_cols(sampleRPg_accept, sampleRPc_accept); // / (double)(nIter);
@@ -213,7 +212,7 @@ Rcpp::List drive(
 Rcpp::List psbcSpeedUp_internal(
     const arma::vec& datTime, const arma::uvec& datEvent, const arma::mat& x,
     const unsigned int p, const unsigned int q, Rcpp::List &hyperParFile, 
-                                const arma::vec ini_beta, const arma::vec ini_tauSq, const arma::vec ini_h, const arma::uvec groupInd, const unsigned int nIter, const unsigned int nChains, const unsigned int thin, bool rw)
+                                arma::vec beta, arma::vec tauSq, arma::vec h, const arma::uvec groupInd, const unsigned int nIter, const unsigned int nChains, const unsigned int thin, bool rw)
 {
     // int status {1};
     Rcpp::List beta_mcmc;
@@ -222,7 +221,7 @@ Rcpp::List psbcSpeedUp_internal(
         // status = drive(...);
         beta_mcmc = drive(datTime, datEvent, x,
             p, q, hyperParFile, 
-            ini_beta, ini_tauSq, ini_h, groupInd, nIter, nChains, thin, rw);
+            beta, tauSq, h, groupInd, nIter, nChains, thin, rw);
     }
     catch (const std::exception &e)
     {
