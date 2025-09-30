@@ -1,10 +1,6 @@
 #include "drive.h"
 
 #ifdef _OPENMP
-#include <omp.h>
-#endif
-
-#ifdef _OPENMP
 extern omp_lock_t RNGlock; /*defined in global.h*/
 #endif
 // extern std::vector<std::mt19937_64> rng;
