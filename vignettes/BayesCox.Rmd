@@ -12,7 +12,7 @@ knitr::opts_chunk$set(echo = TRUE, eval = FALSE)
 options(rmarkdown.html_vignette.check_title = FALSE)
 ```
 
-This is a C++ speed-up and extended version of the R-pakcage [psbcGroup](https://CRAN.R-project.org/package=psbcGroup).
+This is a C++ speed-up and extended version of the R-package [psbcGroup](https://CRAN.R-project.org/package=psbcGroup).
 It implements the Bayesian Lasso Cox model ([Lee et al., 2011](https://doi.org/10.2202/1557-4679.1301)) and the Bayesian Lasso Cox with mandatory variables ([Zucknick et al., 2015](https://doi.org/10.1002/bimj.201400160)).
 Bayesian Lasso Cox models with other shrinkage and group priors ([Lee et al., 2015](https://doi.org/10.1002/sam.11266)) are to be implemented later on.
 
@@ -70,15 +70,20 @@ fitBayesCox <- psbcSpeedUp(survObj,
 ```
 
 
-### Plot posterior estimates of regression cofficients
+### Plot posterior estimates of regression coefficients
 
 The function `psbcSpeedUp::plot()` can show the posterior mean and 95% credible intervals of regression coefficients.
 
 ```{r, fig.width=5, fig.height=8}
 plot(fitBayesCox)
 ```
+```{r eval=FALSE, echo=FALSE}
+png("estimate_beta.png", bg = "transparent", width = 700, height = 900, res = 200)
+plot(fitBayesCox)
+dev.off()
+```
 
-<img src="../man/figures/README_plot_beta.png" width="70%" />
+<img src="../man/figures/estimate_beta.png" width="70%" />
 
 
 ### Plot time-dependent Brier scores
@@ -88,12 +93,18 @@ The function `psbcSpeedUp::plotBrier()` can show the time-dependent Brier scores
 ```{r, fig.width=6, fig.heigh=5}
 plotBrier(fitBayesCox, times = 80)
 ```
-```
-##     Null.model Bayesian.Cox
-## IBS  0.2089742   0.08195375
+```{r eval=FALSE, echo=FALSE}
+png("estimate_brier.png", bg = "transparent", width = 1000, height = 700, res = 200)
+plotBrier(fitBayesCox, times = 80)
+dev.off()
 ```
 
-<img src="../man/figures/README_plot_brier.png" width="90%" />
+```
+##     Null.model Bayesian.Cox
+## IBS  0.2089742   0.08276646
+```
+
+<img src="../man/figures/estimate_brier.png" width="70%" />
 
 
 ### Predict survival probabilities and cumulative hazards
@@ -105,17 +116,18 @@ predict(fitBayesCox, type = c("cumhazard", "survival"))
 ```
 ```
 ##        observation   times cumhazard  survival
-##     1:           1   0.264  1.14e-05  1.00e+00
-##     2:           2   0.264  4.66e-05  1.00e+00
-##     3:           3   0.264  6.07e-05  1.00e+00
-##     4:           4   0.264  1.71e-05  1.00e+00
-##     5:           5   0.264  7.55e-05  1.00e+00
+##              <int>   <num>     <num>     <num>
+##     1:           1   0.264  8.39e-06  1.00e+00
+##     2:           2   0.264  4.09e-05  1.00e+00
+##     3:           3   0.264  4.84e-05  1.00e+00
+##     4:           4   0.264  2.44e-05  1.00e+00
+##     5:           5   0.264  7.22e-05  1.00e+00
 ##    ---                                        
-## 39996:         196 107.641  2.76e+00  6.36e-02
-## 39997:         197 107.641  5.65e-01  5.68e-01
-## 39998:         198 107.641  5.37e+01  4.86e-24
-## 39999:         199 107.641  4.25e+02 2.25e-185
-## 40000:         200 107.641  1.89e-01  8.28e-01
+## 39996:         196 107.641  2.18e+00  1.14e-01
+## 39997:         197 107.641  6.28e-01  5.34e-01
+## 39998:         198 107.641  4.95e+01  3.15e-22
+## 39999:         199 107.641  4.17e+02 9.71e-182
+## 40000:         200 107.641  3.00e-01  7.41e-01
 ```
 
 ## References

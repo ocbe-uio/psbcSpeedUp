@@ -189,7 +189,7 @@ Rcpp::List drive(
             lambdaSq_p(j) = hyperPar_lambdaSq;
         }
 
-        // adaptve jumping rule
+        // adaptive jumping rule
         if (j > 20)
             for (unsigned int jj = 0; jj < p + q; ++jj)
                 if (beta(jj) == beta_p(j - 20, jj))

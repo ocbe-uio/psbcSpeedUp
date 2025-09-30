@@ -6,7 +6,7 @@
 [![License](https://img.shields.io/badge/License-GPLv3-brightgreen.svg)](https://www.gnu.org/licenses/gpl-3.0)
 [![DOI](https://img.shields.io/badge/doi-10.32614%2FCRAN.package.psbcSpeedUp-brightgreen)](https://doi.org/10.32614/CRAN.package.psbcSpeedUp)
 
-This is a C++ speed-up and extended version of the R-pakcage [psbcGroup](https://CRAN.R-project.org/package=psbcGroup).
+This is a C++ speed-up and extended version of the R-package [psbcGroup](https://CRAN.R-project.org/package=psbcGroup).
 It implements the Bayesian Lasso Cox model ([Lee et al., 2011](https://doi.org/10.2202/1557-4679.1301)) and the Bayesian Lasso Cox with mandatory variables ([Zucknick et al., 2015](https://doi.org/10.1002/bimj.201400160)).
 Bayesian Lasso Cox models with other shrinkage and group priors ([Lee et al., 2015](https://doi.org/10.1002/sam.11266)) are to be implemented later on.
 
@@ -65,7 +65,7 @@ Running MCMC iterations ...
 DONE, exiting!
 ```
 
-### Plot posterior estimates of regression cofficients
+### Plot posterior estimates of regression coefficients
 
 The function `psbcSpeedUp::plot()` can show the posterior mean and 95% credible intervals of regression coefficients.
 
@@ -73,7 +73,7 @@ The function `psbcSpeedUp::plot()` can show the posterior mean and 95% credible 
 plot(fitBayesCox)
 ```
 
-<img src="man/figures/README_plot_beta.png" width="70%" />
+<img src="man/figures/estimate_beta.png" width="70%" />
 
 
 ### Plot time-dependent Brier scores
@@ -88,7 +88,7 @@ plotBrier(fitBayesCox, times = 80)
 IBS  0.2089742   0.08276646
 ```
 
-<img src="man/figures/README_plot_brier.png" width="80%" />
+<img src="man/figures/estimate_brier.png" width="80%" />
 
 
 ### Predict survival probabilities and cumulative hazards

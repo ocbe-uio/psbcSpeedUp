@@ -4,7 +4,6 @@
 * Convert line endings in configure.ac to LF
 * Require C++17
 * Remove redundant C++ code
-* TODO: improve efficiency of small functions by passing addresses or using templates
 
 # psbcSpeedUp 2.0.7
 
@@ -30,7 +29,7 @@
 # psbcSpeedUp 2.0.3
 
 * First CRAN version
-* Added adaptve jumping rule
+* Added adaptive jumping rule
 * Fixed bug for q=0 to allowed variable selection for all covariates by default
 
 # psbcSpeedUp 2.0.2
@@ -39,7 +38,7 @@
 
 # psbcSpeedUp 2.0.1
 
-* Set armadillio random values and RNG
+* Set armadillo random values and RNG
 
 # psbcSpeedUp 2.0
 
