@@ -4,7 +4,6 @@
 * Convert line endings in configure.ac to LF
 * Require C++17
 * Remove redundant C++ code
-* TODO: use `struct` object for hyperparameters
 * TODO: improve efficiency of small functions by passing addresses or using templates
 
 # psbcSpeedUp 2.0.7

@@ -6,9 +6,9 @@
 #' Predict time-dependent Brier scores based on Cox regression models
 #'
 #' @name plotBrier
-#' 
+#'
 #' @importFrom ggplot2 ggplot aes geom_step theme element_blank
-#' 
+#'
 #' @param object fitted object obtained with \code{psbcSpeedUp}
 #' @param survObj.new a list containing observed data from new subjects with
 #' components \code{t}, \code{di}, \code{x}. If \code{NULL}, the prediction is
@@ -46,17 +46,19 @@
 #' }
 #'
 #' @export
-plotBrier <- function(object, survObj.new = NULL, 
+plotBrier <- function(object, survObj.new = NULL,
                       method = "mean", times = NULL, ...) {
-  
-  Brier_score <- predict.psbcSpeedUp(object, 
-                                      survObj.new = survObj.new, 
-                                      method = method, 
-                                      times = times)
+  Brier_score <- predict.psbcSpeedUp(object,
+    survObj.new = survObj.new,
+    method = method,
+    times = times
+  )
   Brier <- model <- NULL
-  #Brier_score %>%
-    ggplot2::ggplot(Brier_score, 
-                    aes(times, Brier, group = model, color = model)) +
+  # Brier_score %>%
+  ggplot2::ggplot(
+    Brier_score,
+    aes(times, Brier, group = model, color = model)
+  ) +
     xlab("Evaluation time points") +
     ylab("Brier score") +
     geom_step(direction = "vh") +

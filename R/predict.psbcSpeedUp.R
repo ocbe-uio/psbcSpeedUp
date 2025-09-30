@@ -6,7 +6,7 @@
 #' Predict survival probability, (cumulative) hazard or (integrated) Brier scores based on Cox regression models
 #'
 #' @name predict.psbcSpeedUp
-#' 
+#'
 #' @importFrom riskRegression Score predictCox
 #' @importFrom utils read.table
 #' @importFrom survival coxph Surv

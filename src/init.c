@@ -10,9 +10,11 @@
 /* .Call calls */
 extern SEXP _psbcSpeedUp_drive(void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *);
 
-static const R_CallMethodDef CallEntries[] = {
+static const R_CallMethodDef CallEntries[] =
+{
     {"_psbcSpeedUp_drive", (DL_FUNC)&_psbcSpeedUp_drive, 14},
-    {NULL, NULL, 0}};
+    {NULL, NULL, 0}
+};
 
 void R_init_psbcSpeedUp(DllInfo *dll)
 {

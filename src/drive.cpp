@@ -15,10 +15,20 @@ extern omp_lock_t RNGlock; /*defined in global.h*/
 
 // [[Rcpp::export]]
 Rcpp::List drive(
-    const arma::vec& datTime, const arma::uvec& datEvent, const arma::mat& x,
-    const unsigned int p, const unsigned int q, Rcpp::List &hyperParFile, 
-                 arma::vec beta, arma::vec tauSq, arma::vec h, const arma::uvec groupInd,
-                 const unsigned int nIter, const unsigned int nChains, const unsigned int thin, bool rw)
+    const arma::vec& datTime, 
+    const arma::uvec& datEvent, 
+    const arma::mat& x,
+    const unsigned int p, 
+    const unsigned int q, 
+    Rcpp::List &hyperParFile,
+    arma::vec beta, 
+    arma::vec tauSq, 
+    arma::vec h, 
+    const arma::uvec groupInd, 
+    const unsigned int nIter, 
+    const unsigned int nChains, 
+    const unsigned int thin, 
+    bool rw)
 {
 
 // set random seed
@@ -37,8 +47,6 @@ Rcpp::List drive(
     // ###########################################################
 
     // Rcout << std::fixed << std::setprecision(11);
-
-    // PSBC myPSBC;
 
     // get hyperparameters
     double hyperPar_eta0 = Rcpp::as<double>(hyperParFile["eta0"]);
@@ -72,13 +80,6 @@ Rcpp::List drive(
     arma::mat beta_p = arma::zeros<arma::mat>((int)(nIter / thin) + 1, p + q);
     beta_p.row(0) = beta.t();
 
-    // double lambdaSq;
-    // lambdaSq = chainData.lambdaSq;
-    // double sigmaSq;
-    // sigmaSq = chainData.sigmaSq;
-    // arma::vec tauSq = ini_tauSq;
-    // arma::vec h = ini_h;
-
     // tausq: only for genomic variables
     arma::vec tauSq_exp = arma::zeros<arma::vec>(p);
     for (unsigned int i = 0; i < K; ++i)
@@ -87,8 +88,6 @@ Rcpp::List drive(
         tauSq_exp.elem(arma::find(groupInd == groupNo(i))).fill(tauSq(i));
     }
 
-    // double beta_prop_sd = sqrt(chainData.beta_prop_var);
-    // double beta_clin_sd = sqrt(chainData.beta_clin_var);
     arma::vec sd_bePart2 = arma::zeros<arma::vec>(q);
     sd_bePart2.fill(hyperPar_beta_clin_sd);
     arma::vec sd_be = arma::join_cols(sqrt(hyperPar_sigmaSq * tauSq_exp), sd_bePart2);
@@ -134,9 +133,9 @@ Rcpp::List drive(
 
         if (M % 10 == 0 || M == (nIter - 1))
             Rcpp::Rcout << "\r[" <<                                               //'\r' aka carriage return should move printer's cursor back at the beginning of the current line
-                std::string(cTotalLength * (M + 1.) / nIter, '#') <<        // printing filled part
-                std::string(cTotalLength * (1. - (M + 1.) / nIter), '-') << // printing empty part
-                "] " << int((M + 1.) / nIter * 100.0) << "%\r";             // printing percentage
+                        std::string(cTotalLength * (M + 1.) / nIter, '#') <<        // printing filled part
+                        std::string(cTotalLength * (1. - (M + 1.) / nIter), '-') << // printing empty part
+                        "] " << int((M + 1.) / nIter * 100.0) << "%\r";             // printing percentage
 
         // Updating regression coefficients and hyperparameters
 
@@ -209,27 +208,3 @@ Rcpp::List drive(
                               Rcpp::Named("lambdaSq.p") = lambdaSq_p,
                               Rcpp::Named("accept.rate") = accept_rate);
 }
-
-// // [[Rcpp::export]]
-// Rcpp::List psbcSpeedUp_internal(
-//     const arma::vec& datTime, const arma::uvec& datEvent, const arma::mat& x,
-//     const unsigned int p, const unsigned int q, Rcpp::List &hyperParFile, 
-//                                 arma::vec beta, arma::vec tauSq, arma::vec h, const arma::uvec groupInd, const unsigned int nIter, const unsigned int nChains, const unsigned int thin, bool rw)
-// {
-//     // int status {1};
-//     Rcpp::List beta_mcmc;
-//     try
-//     {
-//         // status = drive(...);
-//         beta_mcmc = drive(datTime, datEvent, x,
-//             p, q, hyperParFile, 
-//             beta, tauSq, h, groupInd, nIter, nChains, thin, rw);
-//     }
-//     catch (const std::exception &e)
-//     {
-//         Rcpp::Rcout << e.what() << '\n'; // we can use Rcerr here because we're reaching here from R for sure
-//     }
-
-//     // return status;
-//     return beta_mcmc;
-// }
