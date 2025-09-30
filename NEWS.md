@@ -2,8 +2,10 @@
 
 * Replace `pugixml.cpp` by `Rcpp::List`
 * Convert line endings in configure.ac to LF
-* Remove redundant C++ code
 * Require C++17
+* Remove redundant C++ code
+* TODO: use `struct` object for hyperparameters
+* TODO: improve efficiency of small functions by passing addresses or using templates
 
 # psbcSpeedUp 2.0.7
 

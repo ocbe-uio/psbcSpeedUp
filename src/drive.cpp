@@ -7,7 +7,7 @@
 #ifdef _OPENMP
 extern omp_lock_t RNGlock; /*defined in global.h*/
 #endif
-/*extern std::vector<std::mt19937_64> rng;*/
+// extern std::vector<std::mt19937_64> rng;
 
 // TODO: not yet set up openmp
 #include <Rcpp.h>
