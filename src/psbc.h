@@ -13,7 +13,7 @@ public:
     static void settingInterval_cpp(
         const arma::vec& y, 
         const arma::uvec& delta_, 
-        const arma::vec s_, 
+        const arma::vec& s_, 
         const unsigned int J_, 
         arma::mat &ind_d_, 
         arma::mat &ind_r_, 
@@ -26,28 +26,28 @@ public:
         const unsigned int K, 
         double r, 
         double delta, 
-        arma::vec tauSq_
+        const arma::vec& tauSq_
     );
 
     static double updateSigma_GL_cpp(
         const unsigned int p, 
-        arma::vec be_normSq_, 
-        arma::vec tauSq_
+        const arma::vec& be_normSq_, 
+        const arma::vec& tauSq_
     );
 
     static arma::vec updateTau_GL_cpp(
         double, 
         double, 
-        arma::vec
+        const arma::vec&
     );
 
     static arma::vec updateBH_cpp(
-        arma::mat &ind_r_d_, 
-        arma::vec hPriorSh_, 
-        arma::vec &d_, 
+        const arma::mat& ind_r_d_, 
+        const arma::vec& hPriorSh_, 
+        const arma::vec& d_, 
         double c0_, 
         const unsigned int J_, 
-        arma::vec xbeta_
+        const arma::vec& xbeta_
     );
 
     static void updateRP_clinical_cpp(
@@ -80,7 +80,7 @@ public:
         arma::vec sd_be_, 
         arma::uvec &sampleRPg_accept_
     );
-    
+
     static void updateRP_genomic_rw_cpp(
         const unsigned int p, 
         const arma::mat& x_, 
@@ -99,9 +99,9 @@ public:
 
 private:
 
-    static arma::mat matProdVec(const arma::mat, const arma::vec);
-    static arma::vec sumMatProdVec(const arma::mat, const arma::vec);
-    static arma::vec rinvgauss(arma::vec, double);
+    static arma::mat matProdVec(const arma::mat&, const arma::vec&);
+    static arma::vec sumMatProdVec(const arma::mat&, const arma::vec&);
+    static arma::vec rinvgauss(const arma::vec&, double);
 
 };
 

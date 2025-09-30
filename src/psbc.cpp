@@ -8,36 +8,38 @@ PSBC::~PSBC()
 {
 }
 
-// TODO: test if passing (const) addresses are more efficient
 // multiply (element-wise) a matrix to a expanded vector
 arma::mat PSBC::matProdVec(
-    const arma::mat x, 
-    const arma::vec y)
+    const arma::mat& x, 
+    const arma::vec& y)
 {
-    arma::mat mat_y = arma::zeros<arma::mat>(y.n_elem, x.n_cols);
-    mat_y.each_col() = y;
-    arma::mat spanMat = x % mat_y; // elementwise product
-    return spanMat;
+    // arma::mat mat_y = arma::zeros<arma::mat>(y.n_elem, x.n_cols);
+    // mat_y.each_col() = y;
+    // arma::mat spanMat = x % mat_y; // elementwise product
+    // return spanMat;
+    return x.each_col() % y;
 }
 
 // compute "arma::sum( matProdVec( ind_r_d_, exp_xbeta ).t(), 1 );"
 arma::vec PSBC::sumMatProdVec(
-    const arma::mat x, 
-    const arma::vec y)
+    const arma::mat& x, 
+    const arma::vec& y)
 {
-    arma::vec spanVec = arma::zeros(x.n_cols);
-    for (unsigned int i = 0; i < x.n_cols; ++i)
-        spanVec(i) = arma::dot(x.col(i), y);
-    return spanVec;
+    // arma::vec spanVec = arma::zeros(x.n_cols);
+    // for (unsigned int i = 0; i < x.n_cols; ++i)
+    //     spanVec(i) = arma::dot(x.col(i), y);
+    // return spanVec;
+    return x.t() * y;
 }
 
+// TODO: test if passing (const) addresses are more efficient
 // set a finite partition of the time axis to define the indicator matrices for risk sets and failure sets
 // in order to calculate the increment in the cumulative baseline hazard in each interval
 // also in order to construct the grouped data likelihood
 void PSBC::settingInterval_cpp(
     const arma::vec& y, 
     const arma::uvec& delta_, 
-    const arma::vec s_, 
+    const arma::vec& s_, 
     const unsigned int J_, 
     arma::mat &ind_d_, 
     arma::mat &ind_r_, 
@@ -86,12 +88,12 @@ void PSBC::settingInterval_cpp(
 // update cumulative baseline harzard
 // update the increment h_j in the cumulative baseline hazard in each interval
 arma::vec PSBC::updateBH_cpp(
-    arma::mat &ind_r_d_, 
-    arma::vec hPriorSh_, 
-    arma::vec &d_, 
+    const arma::mat& ind_r_d_, 
+    const arma::vec& hPriorSh_, 
+    const arma::vec& d_, 
     double c0_, 
     const unsigned int J_, 
-    arma::vec xbeta_)
+    const arma::vec& xbeta_)
 {
     // arma::mat exp_xbeta_mat = matProdVec( ind_r_d_, arma::exp( xbeta_ ) );
     // arma::vec h_rate = c0_ + arma::sum( exp_xbeta_mat.t(), 1 );
@@ -113,27 +115,30 @@ arma::vec PSBC::updateBH_cpp(
 }
 
 // sample values from an inverse-Gaussian distribution
-arma::vec PSBC::rinvgauss(arma::vec a, double b)
+arma::vec PSBC::rinvgauss(const arma::vec& a, double b)
 {
     unsigned int n = a.n_elem;
-    arma::vec pars = arma::zeros<arma::vec>(n);
-    double z, y, x, u;
+    arma::vec pars(n);
+    // Pre-generate all random numbers for better performance
+    arma::vec z = arma::randn(n);  // z_i = R::rnorm(0., 1.);
+    arma::vec u = arma::randu(n);  // u_i = R::runif(0., 1.);
 
     for (unsigned int i = 0; i < n; ++i)
     {
-        // z = R::rnorm(0., 1.);
-        z = arma::randn();
-        y = z * z;
-        x = a(i) + 0.5 * a(i) * a(i) * y / b - 0.5 * (a(i) / b) * sqrt(4. * a(i) * b * y + a(i) * a(i) * y * y);
-        // u = R::runif(0., 1.);
-        u = arma::randu();
-        if (u <= a(i) / (a(i) + x))
+        double a_i = a(i); 
+        double z_i = z(i);
+        double u_i = u(i); 
+        double y = z_i * z_i;
+        double sqrt_term = std::sqrt(4.0 * a_i * b * y + a_i * a_i * y * y);
+        double x = a_i + 0.5 * a_i * a_i * y / b - 0.5 * (a_i/ b) * sqrt_term;
+        
+        if (u_i <= a_i / (a_i + x))
         {
             pars(i) = x;
         }
         else
         {
-            pars(i) = a(i) * a(i) / x;
+            pars(i) = a_i * a_i / x;
         }
     }
     return pars;
@@ -143,7 +148,7 @@ arma::vec PSBC::rinvgauss(arma::vec a, double b)
 arma::vec PSBC::updateTau_GL_cpp(
     double lambdaSq_, 
     double sigmaSq_, 
-    arma::vec be_normSq_)
+    const arma::vec& be_normSq_)
 {
     arma::vec nu = arma::ones<arma::vec>(be_normSq_.n_elem);
     if (arma::any(be_normSq_ != 0))
@@ -165,8 +170,8 @@ arma::vec PSBC::updateTau_GL_cpp(
 // update variance parameter sigma_square sampled from the full conditional inverse-gamma distribution
 double PSBC::updateSigma_GL_cpp(
     const unsigned int p, 
-    arma::vec be_normSq_, 
-    arma::vec tauSq_)
+    const arma::vec& be_normSq_, 
+    const arma::vec& tauSq_)
 {
     double rate_sig = 0.5 * arma::accu(be_normSq_ / tauSq_);
     // if( rate_sig == 0. ) rate_sig = 0.0001;
@@ -182,7 +187,7 @@ double PSBC::updateLambda_GL_cpp(
     const unsigned int K, 
     double r, 
     double delta, 
-    arma::vec tauSq_)
+    const arma::vec& tauSq_)
 {
     double sumTauSq = arma::accu(tauSq_);
     double shape = (p + K) / 2. + r;
