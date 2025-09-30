@@ -54,46 +54,46 @@ public:
         const unsigned int p, 
         const unsigned int q, 
         const arma::mat& x_, 
-        arma::mat &ind_r_, 
-        arma::mat &ind_d_, 
-        arma::mat &ind_r_d_, 
+        const arma::mat &ind_r_, 
+        const arma::mat &ind_d_, 
+        const arma::mat &ind_r_d_, 
         const unsigned int J_, 
-        arma::vec beta_prop_me_, 
+        const arma::vec beta_prop_me_, 
         double beta_prop_sd, 
         arma::vec &xbeta_, 
         arma::vec &be_, 
-        arma::vec &h_, 
-        arma::vec sd_be_, 
+        const arma::vec &h_, 
+        const arma::vec &sd_be_, 
         arma::uvec &sampleRPc_accept_
     );
 
     static void updateRP_genomic_cpp(
         const unsigned int p, 
         const arma::mat& x_, 
-        arma::mat &ind_r_, 
-        arma::mat &ind_d_, 
-        arma::mat &ind_r_d_, 
+        const arma::mat &ind_r_, 
+        const arma::mat &ind_d_, 
+        const arma::mat &ind_r_d_, 
         const unsigned int J_, 
         arma::vec &xbeta_, 
         arma::vec &be_, 
-        arma::vec &h_, 
-        arma::vec sd_be_, 
+        const arma::vec &h_, 
+        const arma::vec &sd_be_, 
         arma::uvec &sampleRPg_accept_
     );
 
     static void updateRP_genomic_rw_cpp(
         const unsigned int p, 
         const arma::mat& x_, 
-        arma::mat &ind_r_, 
-        arma::mat &ind_d_, 
-        arma::mat &ind_r_d_, 
+        const arma::mat &ind_r_, 
+        const arma::mat &ind_d_, 
+        const arma::mat &ind_r_d_, 
         const unsigned int J_, 
-        arma::vec beta_prop_me_, 
+        const arma::vec beta_prop_me_, 
         double beta_prop_sd, 
         arma::vec &xbeta_, 
         arma::vec &be_, 
-        arma::vec &h_, 
-        arma::vec sd_be_, 
+        const arma::vec &h_, 
+        const arma::vec &sd_be_, 
         arma::uvec &sampleRPg_accept_
     );
 

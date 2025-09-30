@@ -8,6 +8,7 @@ PSBC::~PSBC()
 {
 }
 
+// TODO: maybe no need the following func
 // multiply (element-wise) a matrix to a expanded vector
 arma::mat PSBC::matProdVec(
     const arma::mat& x, 
@@ -204,16 +205,16 @@ void PSBC::updateRP_clinical_cpp(
     const unsigned int p, 
     const unsigned int q, 
     const arma::mat& x_, 
-    arma::mat &ind_r_, 
-    arma::mat &ind_d_, 
-    arma::mat &ind_r_d_, 
+    const arma::mat &ind_r_, 
+    const arma::mat &ind_d_, 
+    const arma::mat &ind_r_d_, 
     const unsigned int J_, 
-    arma::vec beta_prop_me_, 
+    const arma::vec beta_prop_me_, 
     double beta_prop_sd, 
     arma::vec &xbeta_, 
     arma::vec &be_, 
-    arma::vec &h_, 
-    arma::vec sd_be_, 
+    const arma::vec &h_, 
+    const arma::vec &sd_be_, 
     arma::uvec &sampleRPc_accept_)
 {
     // select parameters to be updated; use p+j for clinical
@@ -289,14 +290,14 @@ void PSBC::updateRP_clinical_cpp(
 void PSBC::updateRP_genomic_cpp(
     const unsigned int p, 
     const arma::mat& x_, 
-    arma::mat &ind_r_, 
-    arma::mat &ind_d_, 
-    arma::mat &ind_r_d_, 
+    const arma::mat &ind_r_, 
+    const arma::mat &ind_d_, 
+    const arma::mat &ind_r_d_, 
     const unsigned int J_, 
     arma::vec &xbeta_, 
     arma::vec &be_, 
-    arma::vec &h_, 
-    arma::vec sd_be_, 
+    const arma::vec &h_, 
+    const arma::vec &sd_be_, 
     arma::uvec &sampleRPg_accept_)
 {
     arma::uvec updatej = arma::randperm(p);
@@ -384,7 +385,7 @@ void PSBC::updateRP_genomic_cpp(
         {
             be_(j) = be_prop;
             xbeta_ = xbeta_prop;
-            sampleRPg_accept_(j) = sampleRPg_accept_(j) + 1;
+            sampleRPg_accept_(j)++;
         }
     }
 }
@@ -393,16 +394,16 @@ void PSBC::updateRP_genomic_cpp(
 void PSBC::updateRP_genomic_rw_cpp(
     const unsigned int p, 
     const arma::mat& x_, 
-    arma::mat &ind_r_, 
-    arma::mat &ind_d_, 
-    arma::mat &ind_r_d_, 
+    const arma::mat &ind_r_, 
+    const arma::mat &ind_d_, 
+    const arma::mat &ind_r_d_, 
     const unsigned int J_, 
-    arma::vec beta_prop_me_, 
+    const arma::vec beta_prop_me_, 
     double beta_prop_sd, 
     arma::vec &xbeta_, 
     arma::vec &be_, 
-    arma::vec &h_, 
-    arma::vec sd_be_, 
+    const arma::vec &h_, 
+    const arma::vec &sd_be_, 
     arma::uvec &sampleRPg_accept_)
 {
     // select parameters to be updated; use p+j for clinical
