@@ -40,63 +40,49 @@ void PSBC::settingInterval_cpp(
     const arma::vec& y, 
     const arma::uvec& delta_, 
     const arma::vec& s_, 
-    const unsigned int J_, 
-    arma::mat &ind_d_, 
-    arma::mat &ind_r_, 
-    arma::mat &ind_r_d_, 
+    const unsigned int J_,
+    arma::mat &ind_d_,
+    arma::mat &ind_r_,
+    arma::mat &ind_r_d_,
     arma::vec &d_)
 {
-    // Initialization
-    unsigned int n = y.n_elem; // Number of rows
-    ind_d_ = arma::zeros<arma::mat>(n, J_);
-    ind_r_ = arma::zeros<arma::mat>(n, J_);
+    // ind_d_ = ind_r_ = arma::zeros<arma::mat>(y.n_elem, J_);
 
-    // Precompute maximum of s_
-    double smax = arma::max(s_);
+    arma::uvec case0yleq;
+    arma::uvec case0ygeq;
+    arma::uvec case1yleq;
+    arma::uvec case1ygeq;
 
-    // Logical conditions for splitting cases
-    arma::uvec y_leq_smax = arma::find(y <= smax);
-    arma::uvec y_gt_smax = arma::find(y > smax);
+    double smax = max(s_);
+    case0yleq = arma::find(delta_ == 0 && y <= smax);
+    case0ygeq = arma::find(delta_ == 0 && y > smax);
+    case1yleq = arma::find(delta_ == 1 && y <= smax);
+    case1ygeq = arma::find(delta_ == 1 && y > smax);
 
-    arma::uvec delta_eq_0 = arma::find(delta_ == 0);
-    arma::uvec delta_eq_1 = arma::find(delta_ == 1);
-
-    // Pre-split cases
-    arma::uvec case0yleq = arma::intersect(delta_eq_0, y_leq_smax);
-    arma::uvec case1yleq = arma::intersect(delta_eq_1, y_leq_smax);
-    arma::uvec cases_y_gt_smax = arma::join_cols(
-        arma::intersect(delta_eq_0, y_gt_smax),
-        arma::intersect(delta_eq_1, y_gt_smax)
-    );
-
-    // Process case1yleq: delta == 1 && y <= smax
+    int cen_j;
     for (unsigned int i = 0; i < case1yleq.n_elem; ++i)
     {
-        unsigned int idx = case1yleq(i); // Current index
-        unsigned int cen_j = arma::min(arma::find(s_ >= y(idx))); // Smallest j where s_j >= y_i
-
-        ind_d_(idx, cen_j) = 1.0; // Update ind_d_
-        ind_r_.row(idx).cols(0, cen_j).fill(1.0); // Mark interval in ind_r_
+        cen_j = min(arma::find(s_ >= y(case1yleq(i))));
+        ind_d_(case1yleq(i), cen_j) = 1.;
+        ind_r_.submat(case1yleq(i), 0, case1yleq(i), cen_j).fill(1.);
+        // Rcout << cen_j << ",";
     }
 
-    // Process case0yleq: delta == 0 && y <= smax
     for (unsigned int i = 0; i < case0yleq.n_elem; ++i)
     {
-        unsigned int idx = case0yleq(i); // Current index
-        unsigned int cen_j = arma::min(arma::find(s_ >= y(idx))); // Smallest j where s_j >= y_i
-
-        ind_r_.row(idx).cols(0, cen_j).fill(1.0); // Mark interval in ind_r_
+        cen_j = min(arma::find(s_ >= y(case0yleq(i))));
+        ind_r_.submat(case0yleq(i), 0, case0yleq(i), cen_j).fill(1.);
     }
 
-    // Process rows where y > smax (cases_y_gt_smax)
-    if (!cases_y_gt_smax.is_empty())
+    if (case0ygeq.n_elem + case1ygeq.n_elem > 0)
     {
-        ind_r_.rows(cases_y_gt_smax).fill(1.0); // Fill all columns with 1.0
+        arma::uvec union_case01ygeq;
+        union_case01ygeq = arma::unique(arma::join_cols(case0ygeq, case1ygeq));
+        ind_r_.rows(union_case01ygeq).fill(1.);
     }
 
-    // update ind_r_d_ and d_
-    ind_r_d_ = ind_r_ - ind_d_; 
-    d_ = arma::sum(ind_d_, 0).t(); 
+    ind_r_d_ = ind_r_ - ind_d_;
+    d_ = arma::sum(ind_d_.t(), 1);
 }
 
 
