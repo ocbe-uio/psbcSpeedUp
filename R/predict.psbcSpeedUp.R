@@ -47,7 +47,7 @@
 #' set.seed(123)
 #' fitBayesCox <- psbcSpeedUp(survObj,
 #'   p = p, q = q, hyperpar = mypriorPara,
-#'   nIter = 10, burnin = 0, outFilePath = tempdir()
+#'   nIter = 10, burnin = 0
 #' )
 #' # predict survival probabilities of the train data
 #' predict(fitBayesCox)
@@ -68,7 +68,10 @@ predict.psbcSpeedUp <- function(object, survObj.new = NULL, type = "brier",
     stop("Argument 'method' has to be 'mean' or 'BMA'!")
   }
 
-  survObj_train <- as.matrix(read.table(paste0(object$input$outFilePath, "data.txt")))
+  survObj_train <- cbind(object$input$survObj$t,
+                         object$input$survObj$di,
+                         object$input$survObj$x)
+  
   # Check the survival input object
   if (!is.null(survObj.new)) {
     if (!is.list(survObj.new)) {

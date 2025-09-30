@@ -56,7 +56,7 @@ mypriorPara <- list('eta0'=0.02, 'kappa0'=1, 'c0'=2, 'r'=10/9, 'delta'=1e-05,
 library("psbcSpeedUp")
 set.seed(123)
 fitBayesCox <- psbcSpeedUp(survObj, p=p, q=q, hyperpar=mypriorPara,
-nIter=1000, burnin=500, outFilePath="/tmp")
+nIter=1000, burnin=500)
 ```
 
 ```

@@ -45,7 +45,7 @@ library("psbcSpeedUp")
 set.seed(123)
 fitBayesCox <- psbcSpeedUp(survObj,
   p = p, q = q, hyperpar = mypriorPara,
-  nIter = 10, burnin = 0, outFilePath = tempdir()
+  nIter = 10, burnin = 0
 )
 plot(fitBayesCox, color = "blue")
 }

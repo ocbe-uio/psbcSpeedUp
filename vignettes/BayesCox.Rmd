@@ -65,7 +65,7 @@ library("psbcSpeedUp")
 set.seed(123)
 fitBayesCox <- psbcSpeedUp(survObj,
   p = p, q = q, hyperpar = mypriorPara,
-  nIter = 1000, burnin = 500, outFilePath = "/tmp"
+  nIter = 1000, burnin = 500
 )
 ```
 

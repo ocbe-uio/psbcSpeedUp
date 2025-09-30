@@ -12,9 +12,7 @@ psbcSpeedUp(
   nIter = 1,
   burnin = 0,
   thin = 1,
-  rw = FALSE,
-  outFilePath,
-  tmpFolder = "tmp/"
+  rw = FALSE
 )
 }
 \arguments{
@@ -41,16 +39,9 @@ Default is 0}
 Hastings algorithm is used. Otherwise, the mean and the variance of the
 proposal density is updated using the jumping rule described in
 Lee et al. (2011)}
-
-\item{outFilePath}{path to where the output files are to be written}
-
-\item{tmpFolder}{the path to a temporary folder where intermediate data
-files are stored (will be erased at the end of the chain). It is specified
-relative to \code{outFilePath}}
 }
 \value{
 An object of class \code{psbcSpeedUp} is saved as
-\code{obj_psbcSpeedUp.rda} in the output file, including the following components:
 \itemize{
 \item input - a list of all input parameters by the user
 \item output - a list of the all output estimates:
@@ -113,7 +104,7 @@ library("psbcSpeedUp")
 set.seed(123)
 fitBayesCox <- psbcSpeedUp(survObj,
   p = p, q = q, hyperpar = mypriorPara,
-  nIter = 10, burnin = 0, outFilePath = tempdir()
+  nIter = 10, burnin = 0
 )
 plot(fitBayesCox, color = "blue")
 }

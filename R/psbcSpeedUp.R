@@ -27,10 +27,6 @@
 #' Hastings algorithm is used. Otherwise, the mean and the variance of the
 #' proposal density is updated using the jumping rule described in
 #' Lee et al. (2011)
-#' @param outFilePath path to where the output files are to be written
-#' @param tmpFolder the path to a temporary folder where intermediate data
-#' files are stored (will be erased at the end of the chain). It is specified
-#' relative to \code{outFilePath}
 #'
 #' @details
 #' \tabular{ll}{
@@ -54,7 +50,6 @@
 #' }
 #'
 #' @return An object of class \code{psbcSpeedUp} is saved as
-#' \code{obj_psbcSpeedUp.rda} in the output file, including the following components:
 #' \itemize{
 #' \item input - a list of all input parameters by the user
 #' \item output - a list of the all output estimates:
@@ -98,15 +93,15 @@
 #' set.seed(123)
 #' fitBayesCox <- psbcSpeedUp(survObj,
 #'   p = p, q = q, hyperpar = mypriorPara,
-#'   nIter = 10, burnin = 0, outFilePath = tempdir()
+#'   nIter = 10, burnin = 0
 #' )
 #' plot(fitBayesCox, color = "blue")
 #' }
 #'
 #' @export
 psbcSpeedUp <- function(survObj = NULL, p = 0, q = 0, hyperpar = list(),
-                        nIter = 1, burnin = 0, thin = 1, rw = FALSE,
-                        outFilePath, tmpFolder = "tmp/") {
+                        nIter = 1, burnin = 0, thin = 1, 
+                        rw = FALSE) {
   # Check the survival input object
   if (!is.list(survObj)) {
     stop("Argument 'survObj' must be an input")
@@ -139,39 +134,8 @@ psbcSpeedUp <- function(survObj = NULL, p = 0, q = 0, hyperpar = list(),
     stop("Argument 'thin' must be a positive integer!")
   }
 
-  # TODO: remove 'outFilePath' & 'tmpFolder'
-  # Check the directory for the output files
-  if (outFilePath == "") {
-    stop("Please specify a directory to save all output files!")
-  }
-
-  outFilePathLength <- nchar(outFilePath)
-  if (substr(outFilePath, outFilePathLength, outFilePathLength) != "/") {
-    outFilePath <- paste0(outFilePath, "/")
-  }
-  if (!file.exists(outFilePath)) {
-    dir.create(outFilePath)
-  }
-
-  # Create temporary directory
-  tmpFolderLength <- nchar(tmpFolder)
-  if (substr(tmpFolder, tmpFolderLength, tmpFolderLength) != "/") {
-    tmpFolder <- paste0(tmpFolder, "/")
-  }
-  tmpFolder <- paste0(outFilePath, tmpFolder)
-  if (!file.exists(tmpFolder)) {
-    dir.create(tmpFolder)
-  }
-
   # check the formula
   cl <- match.call()
-
-  # Write down in a single data file
-  write.table(cbind(survObj$t, survObj$di, survObj$x),
-    paste0(tmpFolder, "data.txt"),
-    row.names = FALSE, col.names = FALSE
-  )
-  data <- paste0(tmpFolder, "data.txt")
 
   # Check hyperparameters
   if (!is.list(hyperpar)) {
@@ -275,9 +239,8 @@ psbcSpeedUp <- function(survObj = NULL, p = 0, q = 0, hyperpar = list(),
   ret$input["burnin"] <- burnin
   ret$input["thin"] <- thin
   ret$input["rw"] <- rw
-  ret$input["outFilePath"] <- outFilePath
-  ret$input["tmpFolder"] <- tmpFolder
   ret$input["hyperpar"] <- list(hyperpar)
+  ret$input$survObj <- survObj
 
   hyperpar$s <- hyperpar$beta.ini <- hyperpar$tauSq <- hyperpar$h <- hyperpar$groupInd <-
     hyperpar$beta.prop.var <- hyperpar$beta.clin.var <- NULL
@@ -286,7 +249,7 @@ psbcSpeedUp <- function(survObj = NULL, p = 0, q = 0, hyperpar = list(),
   nChains <- 1
   ret$output <- drive(
     survObj$t, survObj$di, survObj$x,
-    p, q, hyperpar, # outFilePath,
+    p, q, hyperpar, 
     ini_beta, ini_tauSq, ini_h, groupInd,
     nIter, nChains, thin, rw
   )
@@ -297,19 +260,6 @@ psbcSpeedUp <- function(survObj = NULL, p = 0, q = 0, hyperpar = list(),
     colnames(ret$output$beta.p) <- paste0("x", seq_len(ncol(survObj$x)))
   } else {
     colnames(ret$output$beta.p) <- colnames(survObj$x)
-  }
-
-  ## Save fitted object
-  obj_psbc <- list(input = ret$input, output = ret$output)
-  save(obj_psbc, file = paste0(outFilePath, "obj_psbc.rda"))
-
-  if (outFilePath != tmpFolder) {
-    unlink(tmpFolder, recursive = TRUE)
-
-    write.table(cbind(survObj$t, survObj$di, survObj$x),
-      paste0(outFilePath, "data.txt"),
-      row.names = FALSE, col.names = FALSE
-    )
   }
 
   return(ret)

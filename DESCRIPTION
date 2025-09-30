@@ -1,6 +1,6 @@
 Package: psbcSpeedUp
 Title: Penalized Semiparametric Bayesian Cox Models
-Version: 2.1.0
+Version: 2.1.1
 Authors@R: c(person("Zhi", "Zhao", role=c("aut","cre"), email = "zhi.zhao@medisin.uio.no"), 
              person("Manuela", "Zucknick", role=c("aut")),
              person("Maral", "Saadati", role=c("aut")),
