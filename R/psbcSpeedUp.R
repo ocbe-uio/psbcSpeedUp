@@ -281,9 +281,9 @@ psbcSpeedUp <- function(survObj = NULL, p = 0, q = 0, hyperpar = list(),
   hyperpar$s <- hyperpar$beta.ini <- hyperpar$tauSq <- hyperpar$h <- hyperpar$groupInd <-
     hyperpar$beta.prop.var <- hyperpar$beta.clin.var <- NULL
 
-  # Run Bayesian Cox model
+  # Run Bayesian Cox model via C++ code
   nChains <- 1
-  ret$output <- psbcSpeedUp_internal(
+  ret$output <- drive(
     survObj$t, survObj$di, survObj$x, 
     p, q, hyperpar, # outFilePath,
     ini_beta, ini_tauSq, ini_h, groupInd, 

@@ -12,6 +12,8 @@ extern omp_lock_t RNGlock; /*defined in global.h*/
 
 // main function
 // (i) import data and parameters; (ii) MCMC algorithm; (iii) export estimates
+
+// [[Rcpp::export]]
 Rcpp::List drive(
     const arma::vec& datTime, const arma::uvec& datEvent, const arma::mat& x,
     const unsigned int p, const unsigned int q, Rcpp::List &hyperParFile, 
@@ -208,26 +210,26 @@ Rcpp::List drive(
                               Rcpp::Named("accept.rate") = accept_rate);
 }
 
-// [[Rcpp::export]]
-Rcpp::List psbcSpeedUp_internal(
-    const arma::vec& datTime, const arma::uvec& datEvent, const arma::mat& x,
-    const unsigned int p, const unsigned int q, Rcpp::List &hyperParFile, 
-                                arma::vec beta, arma::vec tauSq, arma::vec h, const arma::uvec groupInd, const unsigned int nIter, const unsigned int nChains, const unsigned int thin, bool rw)
-{
-    // int status {1};
-    Rcpp::List beta_mcmc;
-    try
-    {
-        // status = drive(...);
-        beta_mcmc = drive(datTime, datEvent, x,
-            p, q, hyperParFile, 
-            beta, tauSq, h, groupInd, nIter, nChains, thin, rw);
-    }
-    catch (const std::exception &e)
-    {
-        Rcpp::Rcout << e.what() << '\n'; // we can use Rcerr here because we're reaching here from R for sure
-    }
+// // [[Rcpp::export]]
+// Rcpp::List psbcSpeedUp_internal(
+//     const arma::vec& datTime, const arma::uvec& datEvent, const arma::mat& x,
+//     const unsigned int p, const unsigned int q, Rcpp::List &hyperParFile, 
+//                                 arma::vec beta, arma::vec tauSq, arma::vec h, const arma::uvec groupInd, const unsigned int nIter, const unsigned int nChains, const unsigned int thin, bool rw)
+// {
+//     // int status {1};
+//     Rcpp::List beta_mcmc;
+//     try
+//     {
+//         // status = drive(...);
+//         beta_mcmc = drive(datTime, datEvent, x,
+//             p, q, hyperParFile, 
+//             beta, tauSq, h, groupInd, nIter, nChains, thin, rw);
+//     }
+//     catch (const std::exception &e)
+//     {
+//         Rcpp::Rcout << e.what() << '\n'; // we can use Rcerr here because we're reaching here from R for sure
+//     }
 
-    // return status;
-    return beta_mcmc;
-}
+//     // return status;
+//     return beta_mcmc;
+// }
