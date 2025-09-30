@@ -1,12 +1,15 @@
 #include "drive.h"
 
+#ifdef _OPENMP
+#include <omp.h>
+#endif
 
 #ifdef _OPENMP
 extern omp_lock_t RNGlock; /*defined in global.h*/
 #endif
 /*extern std::vector<std::mt19937_64> rng;*/
 
-// not yet set up openmp
+// TODO: not yet set up openmp
 #include <Rcpp.h>
 // [[Rcpp::plugins(openmp)]]
 
@@ -127,13 +130,13 @@ Rcpp::List drive(
     // unsigned int tick = 100; // how many iter for each print?
     unsigned int j = 0; // count thinned results
     const int cTotalLength = 50;
-    std::cout << "Running MCMC iterations ...\n";
+    Rcpp::Rcout << "Running MCMC iterations ...\n";
 
     for (unsigned int M = 0; M < nIter; ++M)
     {
 
         if (M % 10 == 0 || M == (nIter - 1))
-            std::cout << "\r[" <<                                               //'\r' aka carriage return should move printer's cursor back at the beginning of the current line
+            Rcpp::Rcout << "\r[" <<                                               //'\r' aka carriage return should move printer's cursor back at the beginning of the current line
                 std::string(cTotalLength * (M + 1.) / nIter, '#') <<        // printing filled part
                 std::string(cTotalLength * (1. - (M + 1.) / nIter), '-') << // printing empty part
                 "] " << int((M + 1.) / nIter * 100.0) << "%\r";             // printing percentage
@@ -200,7 +203,7 @@ Rcpp::List drive(
     arma::uvec accept_rate = join_cols(sampleRPg_accept, sampleRPc_accept); // / (double)(nIter);
 
     // Exit
-    std::cout << "\nDONE, exiting! \n";
+    Rcpp::Rcout << "\nDONE, exiting! \n";
 
     return Rcpp::List::create(Rcpp::Named("beta.p") = beta_p,
                               Rcpp::Named("h.p") = h_p,
@@ -227,7 +230,7 @@ Rcpp::List psbcSpeedUp_internal(
     }
     catch (const std::exception &e)
     {
-        std::cout << e.what() << '\n'; // we can use Rcerr here because we're reaching here from R for sure
+        Rcpp::Rcout << e.what() << '\n'; // we can use Rcerr here because we're reaching here from R for sure
     }
 
     // return status;

@@ -1,13 +1,14 @@
 Package: psbcSpeedUp
 Title: Penalized Semiparametric Bayesian Cox Models
 Version: 2.1.0
-URL: https://github.com/ocbe-uio/psbcSpeedUp
-BugReports: https://github.com/ocbe-uio/psbcSpeedUp/issues
 Authors@R: c(person("Zhi", "Zhao", role=c("aut","cre"), email = "zhi.zhao@medisin.uio.no"), 
              person("Manuela", "Zucknick", role=c("aut")),
              person("Maral", "Saadati", role=c("aut")),
              person("Axel", "Benner", role=c("aut")))
+Maintainer: Zhi Zhao <zhi.zhao@medisin.uio.no> 
 Description: Algorithms to speed up the Bayesian Lasso Cox model (Lee et al., Int J Biostat, 2011 <doi:10.2202/1557-4679.1301>) and the Bayesian Lasso Cox with mandatory variables (Zucknick et al. Biometrical J, 2015 <doi:10.1002/bimj.201400160>).
+URL: https://github.com/ocbe-uio/psbcSpeedUp
+BugReports: https://github.com/ocbe-uio/psbcSpeedUp/issues
 License: GPL-3
 VignetteBuilder: knitr
 Depends: R (>= 4.0)
@@ -19,3 +20,4 @@ Imports: Rcpp, ggplot2, GGally, MASS, survival, riskRegression,
 Suggests: knitr
 LazyData: true
 NeedsCompilation: yes
+SystemRequirements: C++17

@@ -1,15 +1,7 @@
 #ifndef PSBC_H
 #define PSBC_H
 
-#include <vector>
-#include <sstream>
-#include <random>
-
-#ifdef CCODE
-#include <armadillo>
-#else
-#include <RcppArmadillo.h>
-#endif
+#include "global.h"
 
 class PSBC
 {

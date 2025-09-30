@@ -140,6 +140,7 @@ psbcSpeedUp <- function(survObj = NULL, p = 0, q = 0, hyperpar = list(),
     stop("Argument 'thin' must be a positive integer!")
   }
 
+  # TODO: remove 'outFilePath' & 'tmpFolder'
   # Check the directory for the output files
   if (outFilePath == "") {
     stop("Please specify a directory to save all output files!")
