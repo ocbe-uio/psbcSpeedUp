@@ -2,7 +2,6 @@
 % Please edit documentation in R/psbcSpeedUp.R
 \name{psbcSpeedUp}
 \alias{psbcSpeedUp}
-\alias{psbcSpeedUp-package}
 \title{Function to Fit the Bayesian Cox Lasso Model}
 \usage{
 psbcSpeedUp(
